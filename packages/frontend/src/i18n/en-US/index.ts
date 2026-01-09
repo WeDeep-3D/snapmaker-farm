@@ -4,7 +4,7 @@ export default {
   components: {
     navigations: {
       main: {
-        home: 'Home',
+        dashboard: 'Dashboard',
       },
       stack: {
         about: 'About',

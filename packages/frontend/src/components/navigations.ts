@@ -11,10 +11,10 @@ const i18n = i18nSubPath('components.navigations');
 
 export const MAIN_NAVIGATIONS: Navigation[] = [
   {
-    label: i18n('main.home'),
-    icon: 'home',
+    label: i18n('main.dashboard'),
+    icon: 'dashboard',
     available: true,
-    route: 'home',
+    route: 'dashboard',
   },
 ];
 
