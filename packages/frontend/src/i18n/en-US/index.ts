@@ -1,7 +1,29 @@
-// This is just an example,
-// so you can safely delete all default props below
+const productName = 'Snapmaker Farm';
 
 export default {
-  failed: 'Action failed',
-  success: 'Action was successful',
+  components: {
+    navigations: {
+      main: {
+        home: 'Home',
+      },
+      stack: {
+        about: 'About',
+        settings: 'Settings',
+      },
+    },
+    ThemeButton: {
+      labels: {
+        switchTheme: 'Switch Theme',
+      },
+    },
+  },
+  layouts: {
+    headers: {
+      MainHeader: {
+        labels: {
+          title: productName,
+        },
+      },
+    },
+  },
 };
