@@ -17,17 +17,6 @@ export const useSettingsStore = defineStore(
       },
     });
 
-    const themeProps = computed(() => {
-      switch (darkMode.value) {
-        case false:
-          return { color: 'orange', icon: 'light_mode' };
-        case 'auto':
-          return { color: 'teal', icon: 'hdr_auto' };
-        default:
-          return { color: 'yellow', icon: 'dark_mode' };
-      }
-    });
-
     const applyTheme = () => {
       Dark.set(darkMode.value);
     };
@@ -41,7 +30,6 @@ export const useSettingsStore = defineStore(
     return {
       darkMode,
       locale,
-      themeProps,
       applyTheme,
       toggleTheme,
     };

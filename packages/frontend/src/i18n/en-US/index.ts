@@ -4,7 +4,11 @@ export default {
   components: {
     navigations: {
       main: {
-        dashboard: 'Dashboard',
+        projects: 'Projects',
+        devices: 'Devices',
+        filaments: 'Filaments',
+        messages: 'Messages',
+        settings: 'Settings',
       },
       stack: {
         about: 'About',
@@ -18,6 +22,13 @@ export default {
     },
   },
   layouts: {
+    drawers: {
+      ProjectsLeftDrawer: {
+        labels: {
+          title: 'Filters'
+        },
+      },
+    },
     headers: {
       MainHeader: {
         labels: {

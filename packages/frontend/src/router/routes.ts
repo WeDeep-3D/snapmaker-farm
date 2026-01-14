@@ -3,7 +3,7 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '',
-    redirect: '/main/dashboard',
+    redirect: '/main/projects',
   },
   {
     path: '/main',
@@ -15,6 +15,24 @@ const routes: RouteRecordRaw[] = [
         components: {
           default: () => import('pages/main/DashboardPage.vue'),
           leftDrawer: () => import('layouts/drawers/LeftMainDrawer.vue'),
+          header: () => import('layouts/headers/MainHeader.vue'),
+        },
+      },
+      {
+        name: 'devices',
+        path: 'devices',
+        components: {
+          default: () => import('pages/main/DevicesPage.vue'),
+          leftDrawer: () => import('layouts/drawers/LeftMainDrawer.vue'),
+          header: () => import('layouts/headers/MainHeader.vue'),
+        },
+      },
+      {
+        name: 'projects',
+        path: 'projects',
+        components: {
+          default: () => import('pages/main/ProjectsPage.vue'),
+          leftDrawer: () => import('layouts/drawers/ProjectsLeftDrawer.vue'),
           header: () => import('layouts/headers/MainHeader.vue'),
         },
       },
