@@ -47,7 +47,12 @@ const showAddDeviceDialog = () => {
             </q-tooltip>
           </template>
         </q-btn-toggle>
-        <q-btn color="primary" :label="i18n('labels.scanDevices')" @click="showAddDeviceDialog" />
+        <q-btn
+          color="primary"
+          :label="i18n('labels.scanDevices')"
+          no-caps
+          @click="showAddDeviceDialog"
+        />
       </q-card-section>
     </q-card>
   </q-page>
