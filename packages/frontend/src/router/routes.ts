@@ -14,7 +14,7 @@ const routes: RouteRecordRaw[] = [
         path: 'dashboard',
         components: {
           default: () => import('pages/main/DashboardPage.vue'),
-          leftDrawer: () => import('layouts/drawers/LeftMainDrawer.vue'),
+          leftDrawer: () => import('layouts/drawers/MainLeftDrawer.vue'),
           header: () => import('layouts/headers/MainHeader.vue'),
         },
       },
@@ -23,7 +23,7 @@ const routes: RouteRecordRaw[] = [
         path: 'devices',
         components: {
           default: () => import('pages/main/DevicesPage.vue'),
-          leftDrawer: () => import('layouts/drawers/LeftMainDrawer.vue'),
+          leftDrawer: () => import('layouts/drawers/DevicesLeftDrawer.vue'),
           header: () => import('layouts/headers/MainHeader.vue'),
         },
       },

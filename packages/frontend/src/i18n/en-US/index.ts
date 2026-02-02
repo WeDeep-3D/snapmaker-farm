@@ -2,6 +2,24 @@ const productName = 'Snapmaker Farm';
 
 export default {
   components: {
+    devices: {
+      IpInput: {
+        labels: {
+          invalidIp: 'Invalid IP Address',
+        },
+      },
+      ScanDevicesDialog: {
+        labels: {
+          title: 'Scan Devices',
+          ipRanges: 'IP Ranges',
+          addRange: 'Add Range',
+          invalidIp: 'Invalid IP Address',
+          tooManyIps: 'Too many IP addresses to scan',
+          confirm: 'Confirm',
+          cancel: 'Cancel',
+        },
+      },
+    },
     navigations: {
       main: {
         projects: 'Projects',
@@ -25,7 +43,7 @@ export default {
     drawers: {
       ProjectsLeftDrawer: {
         labels: {
-          title: 'Filters'
+          title: 'Filters',
         },
       },
     },
@@ -33,6 +51,21 @@ export default {
       MainHeader: {
         labels: {
           title: productName,
+        },
+      },
+    },
+  },
+  pages: {
+    main: {
+      DevicesPage: {
+        labels: {
+          scanDevices: 'Scan Devices',
+        },
+        tooltips: {
+          display: {
+            grid: 'Grid View',
+            list: 'List View',
+          },
         },
       },
     },
