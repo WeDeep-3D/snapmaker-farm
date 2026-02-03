@@ -84,7 +84,8 @@ export default defineConfig((ctx) => {
       // distDir
 
       extendViteConf(viteConf) {
-        if (process.env.PROD) {
+        if (process.env.NODE_ENV === 'production') {
+          console.log('Setting base to /public/ for production build');
           viteConf.base = '/public/';
         }
       },
