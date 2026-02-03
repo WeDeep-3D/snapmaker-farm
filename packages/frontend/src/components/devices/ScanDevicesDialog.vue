@@ -46,7 +46,11 @@ const requestScan = async () => {
       await getScanDetail();
       if (scanDetail.value && scanDetail.value.processedCount >= scanDetail.value.totalCount) {
         if (getScanInterval.value) {
-          await clearIntervalAsync(getScanInterval.value);
+          (async () => {
+            if (getScanInterval.value) {
+              await clearIntervalAsync(getScanInterval.value);
+            }
+          })().catch((e) => console.log(e));
           notify({
             type: 'positive',
             message: i18n('notifications.getScanDetailSuccess'),
