@@ -3,6 +3,8 @@
 
 import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { extname, resolve } from 'node:path';
 
 // noinspection JSUnusedGlobalSymbols
 export default defineConfig((ctx) => {
@@ -34,6 +36,26 @@ export default defineConfig((ctx) => {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
+      afterBuild(params) {
+        const distDir = params.quasarConf.build?.distDir;
+        if (distDir && process.env.PROD) {
+          const indexHtml = readFileSync(resolve(distDir, 'index.html')).toString();
+          const newHtml = indexHtml.replace('href="/manifest.json"', 'href="manifest.json"');
+          writeFileSync(resolve(distDir, 'index.html'), newHtml);
+
+          readdirSync(resolve(distDir, 'assets')).forEach((filename) => {
+            if (extname(filename) === '.js') {
+              const filepath = resolve(distDir, 'assets', filename);
+              const content = readFileSync(filepath).toString();
+              if (content.includes('/sw.js')) {
+                const newContent = content.replace('/sw.js', 'sw.js');
+                writeFileSync(filepath, newContent);
+              }
+            }
+          });
+        }
+      },
+
       target: {
         browser: ['es2022', 'firefox115', 'chrome115', 'safari14'],
         node: 'node20',
@@ -61,12 +83,11 @@ export default defineConfig((ctx) => {
       // polyfillModulePreload: true,
       // distDir
 
-      // extendViteConf(viteConf) {
-      //         viteConf.base = process.env.DEPLOY_GITHUB_PAGE
-      //           ? '/le-bot-frontend/'
-      //           : process.env.DEPLOY_ELYSIA
-      //             ? '/public/'
-      //             : '/';
+      extendViteConf(viteConf) {
+        if (process.env.PROD) {
+          viteConf.base = '/public/';
+        }
+      },
       // viteVuePluginOptions: {},
 
       vitePlugins: [
