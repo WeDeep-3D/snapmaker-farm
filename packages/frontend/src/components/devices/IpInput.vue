@@ -11,11 +11,24 @@ const i18n = i18nSubPath('components.devices.IpInput');
 <template>
   <q-input
     dense
+    hide-bottom-space
+    maxlength="15"
+    no-error-icon
     outlined
     :rules="[
-      (value?: string) => !(value?.length && !isIPv4(new IPv4(value))) || i18n('labels.invalidIp'),
+      (value?: string) => {
+        if (!value?.length) {
+          return true;
+        }
+        try {
+          return isIPv4(IPv4.fromString(value || ''));
+        } catch {
+          return i18n('labels.invalidIp');
+        }
+      },
     ]"
     v-model="modelValue"
+    style="width: 15rch"
   />
 </template>
 

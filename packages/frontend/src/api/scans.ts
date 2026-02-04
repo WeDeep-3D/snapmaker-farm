@@ -8,10 +8,20 @@ export interface ErrorRespBody {
 export type CreateScanRespBody = ErrorRespBody | { success: true; data: string };
 
 export interface ScanDetail {
+  id: string;
+  processingCount: number;
   queuedCount: number;
-  inProgressCount: number;
-  processedCount: number;
-  recognized: string[];
+  recognized: {
+    ip: string;
+    model: string;
+    name: string;
+    serialNumber: string;
+    version: string;
+    network?: {
+      type: 'wired' | 'wireless' | 'unknown';
+      macAddress: string;
+    };
+  }[];
   totalCount: number;
 }
 

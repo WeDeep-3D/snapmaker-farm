@@ -8,23 +8,34 @@ export default {
           invalidIp: 'Invalid IP Address',
         },
       },
-      ScanDevicesDialog: {
+      ScanPanel: {
         labels: {
           title: 'Scan Devices',
           ipRanges: 'IP Ranges',
           addRange: 'Add Range',
           tooManyIps: 'Too many IP addresses to scan',
           requestScan: 'Request Scan',
-          confirm: 'Confirm',
-          cancel: 'Cancel',
+          abortScan: 'AbortScan',
+          scanProgress: 'Scan Progress',
         },
         notifications: {
+          requestScanInProgress: 'A scan is already in progress',
           requestScanSuccess: 'Scan requested successfully',
           requestScanFailed: 'Failed to request scan',
           requestScanError: 'Error requesting scan',
           getScanDetailSuccess: 'Scan details retrieved successfully',
           getScanDetailFailed: 'Failed to get scan details',
           getScanDetailError: 'Error getting scan details',
+        },
+      },
+      ScanResultGridView: {
+        labels: {
+          deviceName: 'Name:',
+          serialNumber: 'S/N: ',
+        },
+        notifications: {
+          copySerialNumberSuccess: 'Serial number copied to clipboard',
+          copySerialNumberFailed: 'Failed to copy serial number',
         },
       },
     },
@@ -67,7 +78,11 @@ export default {
     main: {
       DevicesPage: {
         labels: {
+          displayMode: 'Display Mode',
+          grid: 'Grid',
+          list: 'List',
           scanDevices: 'Scan Devices',
+          viewDevices: 'View Devices',
         },
         tooltips: {
           display: {
