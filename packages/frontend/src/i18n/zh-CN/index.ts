@@ -38,12 +38,12 @@ export default {
           deviceName: '名称：',
           serialNumber: '序列号：',
           macAddress: 'MAC 地址：{mac}',
+          downloadLogs: '下载日志',
         },
         notifications: {
           copySerialNumberSuccess: '序列号已复制到剪贴板',
           copySerialNumberFailed: '复制序列号失败',
-          downloadLogSuccess: '设备日志下载成功',
-          downloadLogFailed: '设备日志下载失败',
+          downloadLogsFailed: '设备日志下载失败',
         },
       },
       ScanResultListView: {

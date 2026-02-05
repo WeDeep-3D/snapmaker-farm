@@ -38,12 +38,12 @@ export default {
           deviceName: 'Name:',
           serialNumber: 'S/N: ',
           macAddress: 'MAC Address: {mac}',
+          downloadLogs: 'Download Logs',
         },
         notifications: {
           copySerialNumberSuccess: 'Serial number copied to clipboard',
           copySerialNumberFailed: 'Failed to copy serial number',
-          downloadLogSuccess: 'Device logs downloaded successfully',
-          downloadLogFailed: 'Failed to download device logs',
+          downloadLogsFailed: 'Failed to download device logs',
         },
       },
       ScanResultListView: {

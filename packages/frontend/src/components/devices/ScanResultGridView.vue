@@ -39,10 +39,6 @@ const copySerialNumber = async (serialNumber: string) => {
 const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
   const ip = deviceInfo.network.toSorted((a, b) => a.type.localeCompare(b.type))[0]?.ip;
   if (!ip) {
-    notify({
-      type: 'negative',
-      message: i18n('notifications.downloadLogNoIpAddress'),
-    });
     return;
   }
   isDownloading.value = true;
@@ -54,7 +50,7 @@ const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
   } catch (error) {
     notify({
       type: 'negative',
-      message: i18n('notifications.downloadLogFailed'),
+      message: i18n('notifications.downloadLogsFailed'),
       caption: (error as Error).message,
     });
   } finally {
@@ -92,7 +88,7 @@ const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
           </div>
         </q-card-section>
         <q-separator inset />
-        <q-card-section class="q-gutter-y-sm">
+        <q-card-section class="row q-gutter-x-sm">
           <div
             v-for="networkInfo in deviceInfo.network.toSorted((a, b) =>
               a.type.localeCompare(b.type),
@@ -102,7 +98,7 @@ const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
           >
             <q-card class="row items-center text-caption" bordered flat>
               <div
-                class="text-white q-pa-xs"
+                class="text-white q-px-xs"
                 :class="{
                   'bg-primary': networkInfo.type === 'wired',
                   'bg-accent': networkInfo.type === 'wireless',
@@ -111,7 +107,7 @@ const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
               >
                 {{ i18n(`labels.networkType.${networkInfo.type}`) }}
               </div>
-              <div class="q-pa-xs">
+              <div class="q-px-xs">
                 {{ networkInfo.ip }}
               </div>
               <q-tooltip
@@ -126,8 +122,13 @@ const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
           </div>
         </q-card-section>
         <q-separator inset />
-        <q-card-section class="row q-gutter-sm">
-          <q-btn label="Download log" no-caps @click="downloadLog(deviceInfo)" />
+        <q-card-section class="row justify-end q-gutter-sm">
+          <q-btn
+            color="primary"
+            :label="i18n('labels.downloadLogs')"
+            no-caps
+            @click="downloadLog(deviceInfo)"
+          />
         </q-card-section>
         <div class="absolute-top-right row text-white text-caption">
           <div class="bg-primary q-px-xs" style="border-radius: 0 0 0 4px">
