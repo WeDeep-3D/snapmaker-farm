@@ -32,10 +32,13 @@ export default {
         labels: {
           deviceName: 'Name:',
           serialNumber: 'S/N: ',
+          macAddress: 'MAC Address: {mac}',
         },
         notifications: {
           copySerialNumberSuccess: 'Serial number copied to clipboard',
           copySerialNumberFailed: 'Failed to copy serial number',
+          downloadLogSuccess: 'Device logs downloaded successfully',
+          downloadLogFailed: 'Failed to download device logs',
         },
       },
     },

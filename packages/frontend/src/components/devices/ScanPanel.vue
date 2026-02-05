@@ -1,29 +1,26 @@
 <script setup lang="ts">
 import { IPv4 } from 'ip-num';
+import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
 import IpInput from 'components/devices/IpInput.vue';
+import ScanResultGridView from 'components/devices/ScanResultGridView.vue';
 
 import type { ScanDetail } from 'src/api/scans';
 import { createScan, getScan } from 'src/api/scans';
 import { i18nSubPath } from 'src/utils/common';
-import ScanResultGridView from 'components/devices/ScanResultGridView.vue';
+import { useScansStore } from 'stores/scans';
 
 const { notify } = useQuasar();
-
+const { ipRanges } = storeToRefs(useScansStore());
 const i18n = i18nSubPath('components.devices.ScanPanel');
 
 const MAX_IP_COUNT = 65536n;
+const POLL_INTERVAL_MS = 500;
 
 const getScanInterval = ref<number>();
 const isPolling = ref(false);
-const ipRanges = ref([
-  {
-    begin: '',
-    end: '',
-  },
-]);
 const scanId = ref<string>();
 const scanDetail = ref<ScanDetail>();
 
@@ -122,7 +119,7 @@ const requestScan = async () => {
     }
     scanId.value = data.data;
     await getScanDetail();
-    getScanInterval.value = window.setInterval(() => void pollScanDetail(), 500);
+    getScanInterval.value = window.setInterval(() => void pollScanDetail(), POLL_INTERVAL_MS);
     notify({
       type: 'positive',
       message: i18n('notifications.requestScanSuccess'),
@@ -209,12 +206,13 @@ onBeforeUnmount(() => {
       flat
     >
       <q-card-section>
-        <div class="row q-gutter-x-sm">
-          <div class="">
+        <div class="row items-center q-gutter-x-sm">
+          <div class="text-body1">
             {{ i18n('labels.scanProgress') }}
           </div>
           <q-linear-progress
             class="col-grow bg-grey-4"
+            :animation-speed="POLL_INTERVAL_MS * 2"
             :buffer="1 - scanDetail.queuedCount / scanDetail.totalCount"
             color="primary"
             rounded

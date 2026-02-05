@@ -12,15 +12,15 @@ export interface ScanDetail {
   processingCount: number;
   queuedCount: number;
   recognized: {
-    ip: string;
     model: string;
     name: string;
     serialNumber: string;
     version: string;
-    network?: {
+    network: {
+      ip: string;
       type: 'wired' | 'wireless' | 'unknown';
-      macAddress: string;
-    };
+      mac: string;
+    }[];
   }[];
   totalCount: number;
 }
