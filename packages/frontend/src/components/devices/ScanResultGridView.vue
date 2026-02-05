@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { copyToClipboard, exportFile, useQuasar } from 'quasar';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import type { ScanDetail } from 'src/api/scans';
 import { generateColorFromVersion } from 'src/utils/color';
 import { i18nSubPath } from 'src/utils/common';
 import { packToZip } from 'src/utils/io';
 
-defineProps<{
+const props = defineProps<{
   modelValue: ScanDetail['recognized'];
 }>();
 
@@ -17,6 +17,10 @@ const i18n = i18nSubPath('components.devices.ScanResultGridView');
 const { notify } = useQuasar();
 
 const isDownloading = ref(false);
+
+const computedDeviceInfos = computed(() => {
+  return props.modelValue.toSorted((a, b) => a.name.localeCompare(b.name));
+});
 
 const copySerialNumber = async (serialNumber: string) => {
   try {
@@ -34,8 +38,9 @@ const copySerialNumber = async (serialNumber: string) => {
   }
 };
 
-const downloadLog = async (ipAddress?: string) => {
-  if (!ipAddress) {
+const downloadLog = async (deviceInfo: ScanDetail['recognized'][0]) => {
+  const ip = deviceInfo.network.toSorted((a, b) => a.type.localeCompare(b.type))[0]?.ip;
+  if (!ip) {
     notify({
       type: 'negative',
       message: i18n('notifications.downloadLogNoIpAddress'),
@@ -45,7 +50,7 @@ const downloadLog = async (ipAddress?: string) => {
   isDownloading.value = true;
   // noinspection HttpUrlsUsage
   const filesApi = axios.create({
-    baseURL: `http://${ipAddress}:7125/server/files`,
+    baseURL: `http://${ip}:7125/server/files`,
   });
   try {
     const fileList = await Promise.all(
@@ -79,7 +84,7 @@ const downloadLog = async (ipAddress?: string) => {
         }
       }),
     );
-    const status = exportFile('logs.zip', await packToZip(fileList), {
+    const status = exportFile(`${deviceInfo.name}_logs.zip`, await packToZip(fileList), {
       mimeType: 'application/zip',
     });
     if (status === true) {
@@ -107,10 +112,10 @@ const downloadLog = async (ipAddress?: string) => {
 </script>
 
 <template>
-  <div class="row q-col-gutter-md">
+  <div class="row q-col-gutter-sm">
     <div
       class="col-12 col-sm-6 col-md-4 col-xl-2"
-      v-for="(deviceInfo, index) in modelValue"
+      v-for="(deviceInfo, index) in computedDeviceInfos"
       :key="index"
     >
       <q-card>
@@ -152,7 +157,7 @@ const downloadLog = async (ipAddress?: string) => {
                 }"
                 style="border-radius: 4px 0 0 4px"
               >
-                {{ networkInfo.type }}
+                {{ i18n(`labels.networkType.${networkInfo.type}`) }}
               </div>
               <div class="q-pa-xs">
                 {{ networkInfo.ip }}
@@ -170,15 +175,7 @@ const downloadLog = async (ipAddress?: string) => {
         </q-card-section>
         <q-separator inset />
         <q-card-section class="row q-gutter-sm">
-          <q-btn
-            label="Download log"
-            no-caps
-            @click="
-              downloadLog(
-                deviceInfo.network.toSorted((a, b) => a.type.localeCompare(b.type))[0]?.ip,
-              )
-            "
-          />
+          <q-btn label="Download log" no-caps @click="downloadLog(deviceInfo)" />
         </q-card-section>
         <div class="absolute-top-right row text-white text-caption">
           <div class="bg-primary q-px-xs" style="border-radius: 0 0 0 4px">

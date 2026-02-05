@@ -30,6 +30,11 @@ export default {
       },
       ScanResultGridView: {
         labels: {
+          networkType: {
+            wired: 'Wired',
+            wireless: 'Wireless',
+            unknown: 'Unknown',
+          },
           deviceName: 'Name:',
           serialNumber: 'S/N: ',
           macAddress: 'MAC Address: {mac}',
@@ -39,6 +44,27 @@ export default {
           copySerialNumberFailed: 'Failed to copy serial number',
           downloadLogSuccess: 'Device logs downloaded successfully',
           downloadLogFailed: 'Failed to download device logs',
+        },
+      },
+      ScanResultListView: {
+        labels: {
+          networkType: {
+            wired: 'Wired',
+            wireless: 'Wireless',
+            unknown: 'Unknown',
+          },
+          selectWired: 'Select Wired',
+          selectWireless: 'Select Wireless',
+          uploadGCodeFile: 'Upload G-code File',
+          chooseFile: 'Choose File...',
+          cancel: 'Cancel',
+          startUpload: 'Start Upload',
+        },
+        notifications: {
+          uploadNoDeviceSelected: 'Please select at least one device before uploading.',
+          uploadSuccess: 'Uploaded to all {count} selected device(s).',
+          uploadPartial: 'Uploaded to {success} device(s); {failed} failed.',
+          uploadFailed: 'Upload failed for all selected devices.',
         },
       },
     },

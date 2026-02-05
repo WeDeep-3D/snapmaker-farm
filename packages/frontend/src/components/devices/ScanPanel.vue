@@ -11,6 +11,11 @@ import type { ScanDetail } from 'src/api/scans';
 import { createScan, getScan } from 'src/api/scans';
 import { i18nSubPath } from 'src/utils/common';
 import { useScansStore } from 'stores/scans';
+import ScanResultListView from 'components/devices/ScanResultListView.vue';
+
+defineProps<{
+  display: 'grid' | 'list';
+}>();
 
 const { notify } = useQuasar();
 const { ipRanges } = storeToRefs(useScansStore());
@@ -140,7 +145,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="row">
+  <div :class="{
+    'row': $q.screen.gt.sm,
+    'column': $q.screen.lt.md,
+  }">
     <q-card class="column col-12 col-md-auto" bordered flat>
       <q-card-section class="row items-center justify-between">
         <div class="text-body1">
@@ -234,7 +242,16 @@ onBeforeUnmount(() => {
       </q-card-section>
       <q-separator />
       <q-scroll-area class="col-grow" style="height: 10vh">
-        <scan-result-grid-view class="q-pa-md" :model-value="scanDetail.recognized" />
+        <scan-result-grid-view
+          v-show="display === 'grid'"
+          class="q-pa-md"
+          :model-value="scanDetail.recognized"
+        />
+        <scan-result-list-view
+          v-show="display === 'list'"
+          class="q-pa-md"
+          :model-value="scanDetail.recognized"
+        />
       </q-scroll-area>
     </q-card>
   </div>

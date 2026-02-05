@@ -29,12 +29,12 @@ const panelOptions = [
   {
     label: i18n('labels.scanDevices'),
     icon: 'search',
-    value: 'scan',
+    value: 'scans',
   },
 ];
 
-const displayOption = ref<'grid' | 'list'>('grid');
-const panelOption = ref('devices');
+const displayOption = ref<'grid' | 'list'>('list');
+const panelOption = ref('scans');
 </script>
 
 <template>
@@ -51,7 +51,7 @@ const panelOption = ref('devices');
       </q-card-section>
     </q-card>
     <devices-panel v-show="panelOption === 'devices'" :display="displayOption" />
-    <scan-panel v-show="panelOption === 'scan'" class="col-grow" />
+    <scan-panel v-show="panelOption === 'scans'" class="col-grow" :display="displayOption" />
   </q-page>
 </template>
 
