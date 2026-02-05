@@ -3,10 +3,11 @@ import { onMounted } from 'vue';
 
 import { useSettingsStore } from 'stores/settings';
 
-const { applyTheme } = useSettingsStore();
+const { applyTheme, updateLocale } = useSettingsStore();
 
 onMounted(() => {
   applyTheme();
+  updateLocale()
 });
 </script>
 

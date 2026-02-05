@@ -4,6 +4,7 @@ import ThemeButton from 'components/ThemeButton.vue';
 
 import { bus } from 'boot/bus';
 import { i18nSubPath } from 'src/utils/common';
+import LocaleButton from 'components/LocaleButton.vue';
 
 const i18n = i18nSubPath('layouts.headers.MainHeader');
 </script>
@@ -30,8 +31,11 @@ const i18n = i18nSubPath('layouts.headers.MainHeader');
         />
       </q-tabs>
       <q-space />
-      <theme-button />
-      <q-btn dense flat icon="menu" round @click="bus.emit('drawer', 'switch', 'right')" />
+      <div class="row q-gutter-x-sm">
+        <theme-button />
+        <locale-button />
+        <q-btn flat icon="menu" round @click="bus.emit('drawer', 'switch', 'right')" />
+      </div>
     </q-toolbar>
   </q-header>
 </template>

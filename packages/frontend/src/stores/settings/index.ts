@@ -1,21 +1,16 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { Dark } from 'quasar';
-import { computed, ref } from 'vue';
+import type { Ref} from 'vue';
+import { ref } from 'vue';
 
 import { i18nGlobal } from 'boot/i18n';
 import { DARK_MODES } from 'stores/settings/constants';
-import type { Locales } from 'stores/settings/types';
 
 export const useSettingsStore = defineStore(
   'settings',
   () => {
     const darkMode = ref<Dark['mode']>(Dark.mode);
-    const locale = computed({
-      get: () => i18nGlobal.locale,
-      set: (value: Locales) => {
-        i18nGlobal.locale = value;
-      },
-    });
+    const locale = ref((i18nGlobal.locale as unknown as Ref<string>).value);
 
     const applyTheme = () => {
       Dark.set(darkMode.value);
@@ -27,11 +22,19 @@ export const useSettingsStore = defineStore(
       applyTheme();
     };
 
+    const updateLocale = (newLocale?: string) => {
+      if (newLocale) {
+        locale.value = newLocale;
+      }
+      (i18nGlobal.locale as unknown as Ref<string>).value = locale.value;
+    }
+
     return {
       darkMode,
       locale,
       applyTheme,
       toggleTheme,
+      updateLocale
     };
   },
   {
