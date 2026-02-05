@@ -5,6 +5,7 @@ import { computed, ref } from 'vue';
 
 import type { ScanDetail } from 'src/api/scans';
 import { i18nSubPath } from 'src/utils/common';
+import { generateColorFromVersion } from 'src/utils/color';
 
 const props = defineProps<{
   modelValue: ScanDetail['recognized'];
@@ -161,8 +162,17 @@ const startUpload = async () => {
           />
         </q-item-section>
         <q-item-section>
-          <q-item-label>
-            {{ deviceInfo.name }}
+          <q-item-label class="row items-center q-gutter-x-sm">
+            <div>
+              {{ deviceInfo.name }}
+            </div>
+            <q-chip
+              class="text-caption"
+              :color="generateColorFromVersion(deviceInfo.version).color"
+              dense
+              :text-color="generateColorFromVersion(deviceInfo.version).textColor"
+              :label="deviceInfo.version"
+            />
           </q-item-label>
           <q-item-label caption>
             {{ deviceInfo.network.ip }}
