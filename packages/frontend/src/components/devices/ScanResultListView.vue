@@ -72,19 +72,17 @@ const startUpload = async () => {
     return;
   }
   isUploading.value = true;
+  const fileSize = selectedFile.value.size;
+  const formData = new FormData();
+  formData.append('file', selectedFile.value, selectedFile.value.name);
   try {
     const results = await Promise.allSettled(
       targetDevices.map(async (ip) => {
-        const formData = new FormData();
-        formData.append('file', selectedFile.value!, selectedFile.value!.name);
+        // noinspection HttpUrlsUsage
         await axios.post(`http://${ip}:7125/server/files/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
           onUploadProgress: (progressEvent) => {
-            const total = progressEvent.total ?? selectedFile.value?.size ?? progressEvent.loaded;
-            selectedDevices.value.set(
-              ip,
-              total ? Math.round((progressEvent.loaded * 100) / total) : 0,
-            );
+            selectedDevices.value.set(ip, progressEvent.loaded / (progressEvent.total ?? fileSize));
           },
         });
       }),
