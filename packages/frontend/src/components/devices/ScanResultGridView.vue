@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { copyToClipboard, exportFile, useQuasar } from 'quasar';
+import { copyToClipboard, openURL, useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 
 import type { ScanDetail } from 'src/api/scans';
 import { generateColorFromVersion } from 'src/utils/color';
 import { i18nSubPath } from 'src/utils/common';
-import { packToZip } from 'src/utils/io';
 
 const props = defineProps<{
   modelValue: ScanDetail['recognized'];
@@ -38,7 +36,7 @@ const copySerialNumber = async (serialNumber: string) => {
   }
 };
 
-const downloadLog = async (deviceInfo: ScanDetail['recognized'][0]) => {
+const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
   const ip = deviceInfo.network.toSorted((a, b) => a.type.localeCompare(b.type))[0]?.ip;
   if (!ip) {
     notify({
@@ -48,57 +46,11 @@ const downloadLog = async (deviceInfo: ScanDetail['recognized'][0]) => {
     return;
   }
   isDownloading.value = true;
-  // noinspection HttpUrlsUsage
-  const filesApi = axios.create({
-    baseURL: `http://${ip}:7125/server/files`,
-  });
   try {
-    const fileList = await Promise.all(
-      (
-        await filesApi.get<{
-          result: { path: string; modified: number; size: number; permissions: string }[];
-        }>(`/list?root=logs`)
-      ).data.result.map(async (fileData) => {
-        try {
-          return new File(
-            [
-              new Blob([(await axios.get<ArrayBuffer>(`/logs/${fileData.path}`)).data], {
-                type: 'application/octet-stream',
-              }),
-            ],
-            fileData.path,
-            {
-              lastModified: fileData.modified,
-              type: 'application/octet-stream',
-            },
-          );
-        } catch (error) {
-          return new File(
-            [new Blob([(error as Error).message], { type: 'text/plain' })],
-            fileData.path,
-            {
-              lastModified: fileData.modified,
-              type: 'application/octet-stream',
-            },
-          );
-        }
-      }),
+    openURL(
+      `${process.env.HTTP_BASE_URL ?? (process.env.DEV ? 'http://localhost:3000' : '')}/api/v1/devices/${ip}/logs`,
+      undefined,
     );
-    const status = exportFile(`${deviceInfo.name}_logs.zip`, await packToZip(fileList), {
-      mimeType: 'application/zip',
-    });
-    if (status === true) {
-      notify({
-        type: 'positive',
-        message: i18n('notifications.downloadLogSuccess'),
-      });
-    } else {
-      notify({
-        type: 'negative',
-        message: i18n('notifications.downloadLogFailed'),
-        caption: status.message,
-      });
-    }
   } catch (error) {
     notify({
       type: 'negative',

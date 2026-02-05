@@ -5,7 +5,6 @@ import { computed, ref } from 'vue';
 
 import type { ScanDetail } from 'src/api/scans';
 import { i18nSubPath } from 'src/utils/common';
-import { generateColorFromVersion } from 'src/utils/color';
 
 const props = defineProps<{
   modelValue: ScanDetail['recognized'];
@@ -168,9 +167,7 @@ const startUpload = async () => {
             </div>
             <q-chip
               class="text-caption"
-              :color="generateColorFromVersion(deviceInfo.version).color"
               dense
-              :text-color="generateColorFromVersion(deviceInfo.version).textColor"
               :label="deviceInfo.version"
             />
           </q-item-label>
