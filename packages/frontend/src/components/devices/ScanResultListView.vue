@@ -158,7 +158,7 @@ const startUpload = async () => {
             @click="
               selectedDevices.has(deviceInfo.network.ip)
                 ? selectedDevices.delete(deviceInfo.network.ip)
-                : selectedDevices.set(deviceInfo.network.ip, 0.1)
+                : selectedDevices.set(deviceInfo.network.ip, 0)
             "
           />
         </q-item-section>
