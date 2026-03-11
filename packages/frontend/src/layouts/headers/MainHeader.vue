@@ -34,7 +34,7 @@ const i18n = i18nSubPath('layouts.headers.MainHeader');
       <div class="row q-gutter-x-sm">
         <theme-button />
         <locale-button />
-        <q-btn flat icon="menu" round @click="bus.emit('drawer', 'switch', 'right')" />
+        <q-btn flat icon="menu" round @click="bus.emit('drawer', 'toggle', 'right')" />
       </div>
     </q-toolbar>
   </q-header>

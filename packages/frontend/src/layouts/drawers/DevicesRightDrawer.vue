@@ -1,23 +1,20 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { bus } from 'boot/bus';
 import AddDevicesDrawer from 'layouts/drawers/devices/AddDevicesDrawer.vue';
 import DeviceDetailsDrawer from 'layouts/drawers/devices/DeviceDetailsDrawer.vue';
 
-type DevicesDrawerContent = 'addDevices' | 'deviceDetails';
+const content = ref<'addDevices' | 'deviceDetails'>('deviceDetails');
+const width = ref(500);
 
-const content = ref<DevicesDrawerContent>('deviceDetails');
-
-const onContentSwitch = (newContent: DevicesDrawerContent) => {
+const onContentSwitch = (newContent: 'addDevices' | 'deviceDetails') => {
   content.value = newContent;
+  width.value = newContent === 'addDevices' ? 700 : 500;
 };
 
-bus.on('devicesDrawer', onContentSwitch);
-
-onBeforeUnmount(() => {
-  bus.off('devicesDrawer', onContentSwitch);
-});
+onMounted(() => bus.on('devicesDrawer', onContentSwitch));
+onBeforeUnmount(() => bus.off('devicesDrawer', onContentSwitch));
 </script>
 
 <template>
@@ -27,7 +24,7 @@ onBeforeUnmount(() => {
     no-swipe-close
     no-swipe-open
     side="right"
-    :width="500"
+    :width="width"
     @show="bus.emit('drawer', 'open', 'right')"
     @hide="bus.emit('drawer', 'close', 'right')"
   >
