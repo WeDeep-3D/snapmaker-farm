@@ -15,7 +15,7 @@ const POLL_INTERVAL_MS = 500;
 export const useScan = () => {
   const { notify } = useQuasar();
   const { ipRanges } = storeToRefs(useScansStore());
-  const i18n = i18nSubPath('components.devices.ScanPanel');
+  const i18n = i18nSubPath('composables.devices.scan');
 
   const scanDetail = ref<ScanDetail>();
   const scanId = ref<string>();

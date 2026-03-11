@@ -33,7 +33,7 @@ const displayOption = ref<'grid' | 'list'>('list');
 </script>
 
 <template>
-  <q-card v-if="props.scanDetail" class="q-mb-md" bordered flat>
+  <q-card v-if="props.scanDetail" class="q-mb-md column" bordered flat>
     <q-card-section>
       <div class="row items-center q-gutter-x-sm">
         <div class="text-body1">
@@ -59,26 +59,28 @@ const displayOption = ref<'grid' | 'list'>('list');
         </q-linear-progress>
       </div>
     </q-card-section>
+    <q-separator />
+    <q-card-section>
+      <div class="row items-center q-gutter-x-sm">
+        <div class="text-subtitle1">
+          {{ i18n('labels.displayMode') }}
+        </div>
+        <q-btn-toggle :options="displayOptions" no-caps v-model="displayOption" />
+      </div>
+    </q-card-section>
+    <q-scroll-area class="col-grow" style="min-height: 0">
+      <scan-result-grid-view
+        v-if="props.scanDetail"
+        v-show="displayOption === 'grid'"
+        :model-value="props.scanDetail.recognized"
+      />
+      <scan-result-list-view
+        v-if="props.scanDetail"
+        v-show="displayOption === 'list'"
+        :model-value="props.scanDetail.recognized"
+      />
+    </q-scroll-area>
   </q-card>
-
-  <div class="row items-center q-gutter-x-sm q-mb-md">
-    <div class="text-subtitle1">
-      {{ i18n('labels.displayMode') }}
-    </div>
-    <q-btn-toggle :options="displayOptions" no-caps v-model="displayOption" />
-  </div>
-  <q-scroll-area style="height: calc(100vh - 480px)">
-    <scan-result-grid-view
-      v-if="props.scanDetail"
-      v-show="displayOption === 'grid'"
-      :model-value="props.scanDetail.recognized"
-    />
-    <scan-result-list-view
-      v-if="props.scanDetail"
-      v-show="displayOption === 'list'"
-      :model-value="props.scanDetail.recognized"
-    />
-  </q-scroll-area>
 </template>
 
 <style scoped></style>

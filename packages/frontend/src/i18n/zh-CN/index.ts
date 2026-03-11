@@ -86,6 +86,21 @@ export default {
       },
     },
   },
+  composables: {
+    devices: {
+      scan: {
+        notifications: {
+          getScanDetailError: '获取扫描详情时发生错误',
+          getScanDetailFailed: '获取扫描详情失败',
+          getScanDetailSuccess: '获取扫描详情成功',
+          requestScanError: '发起扫描时发生错误',
+          requestScanFailed: '发起扫描失败',
+          requestScanInProgress: '扫描请求正在进行中',
+          requestScanSuccess: '发起扫描成功',
+        },
+      },
+    },
+  },
   layouts: {
     drawers: {
       devices: {

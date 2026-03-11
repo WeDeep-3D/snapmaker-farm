@@ -86,6 +86,21 @@ export default {
       },
     },
   },
+  composables: {
+    devices: {
+      scan: {
+        notifications: {
+          getScanDetailError: 'Error getting scan details',
+          getScanDetailFailed: 'Failed to get scan details',
+          getScanDetailSuccess: 'Successfully got scan details',
+          requestScanError: 'Error requesting scan',
+          requestScanFailed: 'Failed to request scan',
+          requestScanInProgress: 'A scan request is already in progress',
+          requestScanSuccess: 'Scan requested successfully',
+        },
+      },
+    },
+  },
   layouts: {
     drawers: {
       devices: {
