@@ -58,6 +58,14 @@ export default {
           uploadFailed: 'Upload failed for all selected devices.',
         },
       },
+      ScanResultPanel: {
+        labels: {
+          scanProgress: 'Scan Progress',
+          displayMode: 'Display Mode',
+          grid: 'Grid',
+          list: 'List',
+        },
+      },
     },
     navigations: {
       main: {
@@ -89,23 +97,10 @@ export default {
               'Please set the region where your devices are located. This will be used for categorizing and displaying devices later.',
             scanDevicesTitle: 'Scan Devices',
             selectDevicesTitle: 'Select Devices',
-            displayMode: 'Display Mode',
-            grid: 'Grid',
-            list: 'List',
             continue: 'Continue',
             back: 'Back',
             startScan: 'Start Scan',
-            scanProgress: 'Scan Progress',
             bindDevices: 'Bind Devices',
-          },
-          notifications: {
-            requestScanInProgress: 'A scan is already in progress',
-            requestScanSuccess: 'Scan requested successfully',
-            requestScanFailed: 'Failed to request scan',
-            requestScanError: 'Error requesting scan',
-            getScanDetailSuccess: 'Scan details retrieved successfully',
-            getScanDetailFailed: 'Failed to get scan details',
-            getScanDetailError: 'Error getting scan details',
           },
         },
         DeviceDetailsDrawer: {

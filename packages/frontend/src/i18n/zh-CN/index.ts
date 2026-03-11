@@ -58,6 +58,14 @@ export default {
           uploadFailed: '所有已选设备上传失败。',
         },
       },
+      ScanResultPanel: {
+        labels: {
+          scanProgress: '扫描进度',
+          displayMode: '显示模式',
+          grid: '网格',
+          list: '列表',
+        },
+      },
     },
     navigations: {
       main: {
@@ -88,23 +96,10 @@ export default {
             setRegionDescription: '请设置您的设备所在的区域，这将用于后续分类显示设备。',
             scanDevicesTitle: '扫描设备',
             selectDevicesTitle: '选择设备',
-            displayMode: '显示模式',
-            grid: '网格',
-            list: '列表',
             continue: '继续',
             back: '返回',
             startScan: '开始扫描',
-            scanProgress: '扫描进度',
             bindDevices: '绑定设备',
-          },
-          notifications: {
-            requestScanInProgress: '已有扫描任务进行中',
-            requestScanSuccess: '扫描请求成功',
-            requestScanFailed: '扫描请求失败',
-            requestScanError: '扫描请求出错',
-            getScanDetailSuccess: '扫描详情获取成功',
-            getScanDetailFailed: '扫描详情获取失败',
-            getScanDetailError: '获取扫描详情出错',
           },
         },
         DeviceDetailsDrawer: {
