@@ -8,6 +8,16 @@ export default {
           invalidIp: 'Invalid IP Address',
         },
       },
+      ScanDialog: {
+        labels: {
+          setRegionTitle: 'Set Region',
+          setRegionDescription:
+            'Please set the region where your devices are located. This will be used for categorizing and displaying devices later.',
+          continue: 'Continue',
+          startScan: 'Start Scan',
+          bindDevices: 'Bind Devices',
+        },
+      },
       ScanPanel: {
         labels: {
           title: 'Scan Devices',
@@ -89,6 +99,29 @@ export default {
   },
   layouts: {
     drawers: {
+      devices: {
+        AddDevicesDrawer: {
+          labels: {
+            title: 'Add Devices',
+            setRegionTitle: 'Set Region',
+            setRegionDescription:
+              'Please set the region where your devices are located. This will be used for categorizing and displaying devices later.',
+            scanDevicesTitle: 'Scan Devices',
+            selectDevicesTitle: 'Select Devices',
+            displayMode: 'Display Mode',
+            grid: 'Grid',
+            list: 'List',
+            continue: 'Continue',
+            back: 'Back',
+            bindDevices: 'Bind Devices',
+          },
+        },
+        DeviceDetailsDrawer: {
+          labels: {
+            title: 'Device Details',
+          },
+        },
+      },
       ProjectsLeftDrawer: {
         labels: {
           title: 'Filters',

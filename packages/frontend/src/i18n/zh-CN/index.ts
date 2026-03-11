@@ -8,6 +8,15 @@ export default {
           invalidIp: '无效的 IP 地址',
         },
       },
+      ScanDialog: {
+        labels: {
+          setRegionTitle: '设置区域',
+          setRegionDescription: '请设置您的设备所在的区域，这将用于后续分类显示设备。',
+          continue: '继续',
+          startScan: '开始扫描',
+          bindDevices: '绑定设备',
+        },
+      },
       ScanPanel: {
         labels: {
           title: '扫描设备',
@@ -89,6 +98,29 @@ export default {
   },
   layouts: {
     drawers: {
+      devices: {
+        AddDevicesDrawer: {
+          labels: {
+            title: '\u6dfb\u52a0\u8bbe\u5907',
+            setRegionTitle: '\u8bbe\u7f6e\u533a\u57df',
+            setRegionDescription:
+              '\u8bf7\u8bbe\u7f6e\u60a8\u7684\u8bbe\u5907\u6240\u5728\u7684\u533a\u57df\uff0c\u8fd9\u5c06\u7528\u4e8e\u540e\u7eed\u5206\u7c7b\u663e\u793a\u8bbe\u5907\u3002',
+            scanDevicesTitle: '\u626b\u63cf\u8bbe\u5907',
+            selectDevicesTitle: '\u9009\u62e9\u8bbe\u5907',
+            displayMode: '\u663e\u793a\u6a21\u5f0f',
+            grid: '\u7f51\u683c',
+            list: '\u5217\u8868',
+            continue: '\u7ee7\u7eed',
+            back: '\u8fd4\u56de',
+            bindDevices: '\u7ed1\u5b9a\u8bbe\u5907',
+          },
+        },
+        DeviceDetailsDrawer: {
+          labels: {
+            title: '\u8bbe\u5907\u8be6\u60c5',
+          },
+        },
+      },
       ProjectsLeftDrawer: {
         labels: {
           title: '筛选',

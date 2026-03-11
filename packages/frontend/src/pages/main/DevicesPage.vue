@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { i18nSubPath } from 'src/utils/common';
-import ScanPanel from 'components/devices/ScanPanel.vue';
+import { bus } from 'boot/bus';
 import DevicesPanel from 'components/devices/DevicesPanel.vue';
+import { i18nSubPath } from 'src/utils/common';
 
 const i18n = i18nSubPath('pages.main.DevicesPage');
 
@@ -20,21 +20,13 @@ const displayOptions = [
   },
 ];
 
-const panelOptions = [
-  {
-    label: i18n('labels.viewDevices'),
-    icon: 'print',
-    value: 'devices',
-  },
-  {
-    label: i18n('labels.scanDevices'),
-    icon: 'search',
-    value: 'scans',
-  },
-];
-
 const displayOption = ref<'grid' | 'list'>('list');
-const panelOption = ref('scans');
+const panelOption = ref('devices');
+
+const showAddDevicesDrawer = () => {
+  bus.emit('devicesDrawer', 'addDevices');
+  bus.emit('drawer', 'open', 'right');
+};
 </script>
 
 <template>
@@ -47,11 +39,10 @@ const panelOption = ref('scans');
           </div>
           <q-btn-toggle :options="displayOptions" no-caps v-model="displayOption" />
         </div>
-        <q-btn-toggle :options="panelOptions" no-caps v-model="panelOption" />
+        <q-btn :label="i18n('labels.scanDevices')" @click="showAddDevicesDrawer" />
       </q-card-section>
     </q-card>
     <devices-panel v-show="panelOption === 'devices'" :display="displayOption" />
-    <scan-panel v-show="panelOption === 'scans'" class="col-grow" :display="displayOption" />
   </q-page>
 </template>
 

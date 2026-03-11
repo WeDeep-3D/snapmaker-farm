@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { useQuasar } from 'quasar';
+// import axios from 'axios';
+// import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 
 import type { ScanDetail } from 'src/api/scans';
@@ -12,12 +12,12 @@ const props = defineProps<{
 
 const i18n = i18nSubPath('components.devices.ScanResultListView');
 
-const { notify } = useQuasar();
+// const { notify } = useQuasar();
 
 const selectedDevices = ref(new Map<string, number>());
-const morphGroupModel = ref<'btn' | 'card'>('btn');
-const selectedFile = ref<File>();
-const isUploading = ref(false);
+// const morphGroupModel = ref<'btn' | 'card'>('btn');
+// const selectedFile = ref<File>();
+// const isUploading = ref(false);
 
 const computedDeviceInfos = computed(() => {
   return props.modelValue
@@ -59,63 +59,63 @@ const selectWireless = () => {
   });
 };
 
-const startUpload = async () => {
-  if (!selectedFile.value) {
-    return;
-  }
-  const targetDevices = Array.from(selectedDevices.value.keys());
-  if (!targetDevices.length) {
-    notify({
-      type: 'warning',
-      message: i18n('notifications.uploadNoDeviceSelected'),
-    });
-    return;
-  }
-  isUploading.value = true;
-  const fileSize = selectedFile.value.size;
-  const formData = new FormData();
-  formData.append('file', selectedFile.value, selectedFile.value.name);
-  try {
-    const results = await Promise.allSettled(
-      targetDevices.map(async (ip) => {
-        // noinspection HttpUrlsUsage
-        await axios.post(`http://${ip}:7125/server/files/upload`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
-            selectedDevices.value.set(ip, progressEvent.loaded / (progressEvent.total ?? fileSize));
-          },
-        });
-      }),
-    );
-    const failed = results.filter((result) => result.status === 'rejected');
-    const succeededCount = results.length - failed.length;
-    if (!failed.length) {
-      notify({
-        type: 'positive',
-        message: i18n('notifications.uploadSuccess', { count: succeededCount }),
-      });
-      morphGroupModel.value = 'btn';
-      selectedFile.value = undefined;
-      selectedDevices.value.clear();
-    } else {
-      notify({
-        type: 'negative',
-        message:
-          failed.length === results.length
-            ? i18n('notifications.uploadFailed')
-            : i18n('notifications.uploadPartial', {
-                success: succeededCount,
-                failed: failed.length,
-              }),
-        caption: failed
-          .map((result) => (result.reason as Error)?.message ?? String(result.reason))
-          .join('; '),
-      });
-    }
-  } finally {
-    isUploading.value = false;
-  }
-};
+// const startUpload = async () => {
+//   if (!selectedFile.value) {
+//     return;
+//   }
+//   const targetDevices = Array.from(selectedDevices.value.keys());
+//   if (!targetDevices.length) {
+//     notify({
+//       type: 'warning',
+//       message: i18n('notifications.uploadNoDeviceSelected'),
+//     });
+//     return;
+//   }
+//   isUploading.value = true;
+//   const fileSize = selectedFile.value.size;
+//   const formData = new FormData();
+//   formData.append('file', selectedFile.value, selectedFile.value.name);
+//   try {
+//     const results = await Promise.allSettled(
+//       targetDevices.map(async (ip) => {
+//         // noinspection HttpUrlsUsage
+//         await axios.post(`http://${ip}:7125/server/files/upload`, formData, {
+//           headers: { 'Content-Type': 'multipart/form-data' },
+//           onUploadProgress: (progressEvent) => {
+//             selectedDevices.value.set(ip, progressEvent.loaded / (progressEvent.total ?? fileSize));
+//           },
+//         });
+//       }),
+//     );
+//     const failed = results.filter((result) => result.status === 'rejected');
+//     const succeededCount = results.length - failed.length;
+//     if (!failed.length) {
+//       notify({
+//         type: 'positive',
+//         message: i18n('notifications.uploadSuccess', { count: succeededCount }),
+//       });
+//       morphGroupModel.value = 'btn';
+//       selectedFile.value = undefined;
+//       selectedDevices.value.clear();
+//     } else {
+//       notify({
+//         type: 'negative',
+//         message:
+//           failed.length === results.length
+//             ? i18n('notifications.uploadFailed')
+//             : i18n('notifications.uploadPartial', {
+//                 success: succeededCount,
+//                 failed: failed.length,
+//               }),
+//         caption: failed
+//           .map((result) => (result.reason as Error)?.message ?? String(result.reason))
+//           .join('; '),
+//       });
+//     }
+//   } finally {
+//     isUploading.value = false;
+//   }
+// };
 </script>
 
 <template>
@@ -203,50 +203,50 @@ const startUpload = async () => {
         />
       </q-item>
     </div>
-    <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn
-        v-morph:btn:mygroup:250.resize="morphGroupModel"
-        class="absolute-bottom-right"
-        color="primary"
-        :disable="isUploading || !selectedDevices.size"
-        fab
-        icon="upload"
-        size="2rem"
-        @click="morphGroupModel = 'card'"
-      />
-      <q-card
-        v-morph:card:mygroup:250.resize="morphGroupModel"
-        class="absolute-bottom-right bg-primary text-white"
-        style="min-width: 18rem; border-bottom-right-radius: 2rem"
-      >
-        <q-card-section class="column q-gutter-y-md">
-          <div class="text-h6">
-            {{ i18n('labels.uploadGCodeFile') }}
-          </div>
-          <q-file
-            accept=".json,.gcode"
-            clearable
-            color="white"
-            input-class="text-white"
-            :label="i18n('labels.chooseFile')"
-            label-color="white"
-            outlined
-            v-model="selectedFile"
-          />
-          <div class="row justify-end q-gutter-x-sm">
-            <q-btn
-              color="positive"
-              :disable="!selectedFile || isUploading"
-              :loading="isUploading"
-              :label="i18n('labels.startUpload')"
-              no-caps
-              @click="startUpload"
-            />
-            <q-btn flat :label="i18n('labels.cancel')" no-caps @click="morphGroupModel = 'btn'" />
-          </div>
-        </q-card-section>
-      </q-card>
-    </q-page-sticky>
+<!--    <q-page-sticky position="bottom-right" :offset="[18, 18]">-->
+<!--      <q-btn-->
+<!--        v-morph:btn:mygroup:250.resize="morphGroupModel"-->
+<!--        class="absolute-bottom-right"-->
+<!--        color="primary"-->
+<!--        :disable="isUploading || !selectedDevices.size"-->
+<!--        fab-->
+<!--        icon="upload"-->
+<!--        size="2rem"-->
+<!--        @click="morphGroupModel = 'card'"-->
+<!--      />-->
+<!--      <q-card-->
+<!--        v-morph:card:mygroup:250.resize="morphGroupModel"-->
+<!--        class="absolute-bottom-right bg-primary text-white"-->
+<!--        style="min-width: 18rem; border-bottom-right-radius: 2rem"-->
+<!--      >-->
+<!--        <q-card-section class="column q-gutter-y-md">-->
+<!--          <div class="text-h6">-->
+<!--            {{ i18n('labels.uploadGCodeFile') }}-->
+<!--          </div>-->
+<!--          <q-file-->
+<!--            accept=".json,.gcode"-->
+<!--            clearable-->
+<!--            color="white"-->
+<!--            input-class="text-white"-->
+<!--            :label="i18n('labels.chooseFile')"-->
+<!--            label-color="white"-->
+<!--            outlined-->
+<!--            v-model="selectedFile"-->
+<!--          />-->
+<!--          <div class="row justify-end q-gutter-x-sm">-->
+<!--            <q-btn-->
+<!--              color="positive"-->
+<!--              :disable="!selectedFile || isUploading"-->
+<!--              :loading="isUploading"-->
+<!--              :label="i18n('labels.startUpload')"-->
+<!--              no-caps-->
+<!--              @click="startUpload"-->
+<!--            />-->
+<!--            <q-btn flat :label="i18n('labels.cancel')" no-caps @click="morphGroupModel = 'btn'" />-->
+<!--          </div>-->
+<!--        </q-card-section>-->
+<!--      </q-card>-->
+<!--    </q-page-sticky>-->
   </div>
 </template>
 

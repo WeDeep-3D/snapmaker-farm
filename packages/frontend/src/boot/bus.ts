@@ -9,7 +9,11 @@ declare module 'vue' {
 }
 
 export const bus = new EventBus<{
-  drawer: (action: 'close' | 'open' | 'toggle' | 'minimize' | 'maximize' | 'switch', position: 'left' | 'right') => void;
+  drawer: (
+    action: 'close' | 'open' | 'toggle' | 'minimize' | 'maximize' | 'switch',
+    position: 'left' | 'right',
+  ) => void;
+  devicesDrawer: (content: 'addDevices' | 'deviceDetails') => void;
 }>();
 
 export default defineBoot(({ app }) => {

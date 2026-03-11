@@ -24,6 +24,7 @@ const routes: RouteRecordRaw[] = [
         components: {
           default: () => import('pages/main/DevicesPage.vue'),
           leftDrawer: () => import('layouts/drawers/DevicesLeftDrawer.vue'),
+          rightDrawer: () => import('layouts/drawers/DevicesRightDrawer.vue'),
           header: () => import('layouts/headers/MainHeader.vue'),
         },
       },

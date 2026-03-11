@@ -5,17 +5,13 @@ import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
 import IpInput from 'components/devices/IpInput.vue';
-import ScanResultGridView from 'components/devices/ScanResultGridView.vue';
 
 import type { ScanDetail } from 'src/api/scans';
 import { createScan, getScan } from 'src/api/scans';
 import { i18nSubPath } from 'src/utils/common';
 import { useScansStore } from 'stores/scans';
-import ScanResultListView from 'components/devices/ScanResultListView.vue';
 
-defineProps<{
-  display: 'grid' | 'list';
-}>();
+const modelValue = defineModel<ScanDetail | undefined>({ required: true });
 
 const { notify } = useQuasar();
 const { ipRanges } = storeToRefs(useScansStore());
@@ -27,7 +23,6 @@ const POLL_INTERVAL_MS = 500;
 const getScanInterval = ref<number>();
 const isPolling = ref(false);
 const scanId = ref<string>();
-const scanDetail = ref<ScanDetail>();
 
 const totalCount = computed(() =>
   ipRanges.value.reduce((acc, item) => {
@@ -59,9 +54,9 @@ const pollScanDetail = async () => {
   try {
     await getScanDetail();
     if (
-      scanDetail.value &&
-      scanDetail.value.queuedCount === 0 &&
-      scanDetail.value.processingCount === 0
+      modelValue.value &&
+      modelValue.value.queuedCount === 0 &&
+      modelValue.value.processingCount === 0
     ) {
       stopPolling();
       notify({
@@ -94,7 +89,7 @@ const getScanDetail = async () => {
       });
       return;
     }
-    scanDetail.value = data.data;
+    modelValue.value = data.data;
   } catch (error) {
     notify({
       type: 'negative',
@@ -145,116 +140,97 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div :class="{
-    'row': $q.screen.gt.sm,
-    'column': $q.screen.lt.md,
-  }">
-    <q-card class="column col-12 col-md-auto" bordered flat>
-      <q-card-section class="row items-center justify-between">
-        <div class="text-body1">
-          {{ i18n('labels.ipRanges') }}
-        </div>
-        <q-btn
-          color="primary"
-          dense
-          icon="add"
-          :label="i18n('labels.addRange')"
-          no-caps
-          @click="ipRanges.push({ begin: '', end: '' })"
-        />
-      </q-card-section>
-      <q-list
-        :class="{
-          'col-grow': $q.screen.gt.sm,
-        }"
-        bordered
-        separator
-      >
-        <q-item v-for="(ipRange, index) in ipRanges" :key="index">
-          <q-item-section>
-            <div class="row justify-end items-baseline q-gutter-x-sm">
-              <ip-input v-model="ipRange.begin" />
-              <div class="text-body1">~</div>
-              <ip-input v-model="ipRange.end" />
-            </div>
-          </q-item-section>
-          <q-item-section side>
-            <q-btn
-              color="negative"
-              dense
-              icon="delete"
-              @click="
-                ipRanges.length > 1
-                  ? ipRanges.splice(index, 1)
-                  : (ipRanges = [{ begin: '', end: '' }])
-              "
-            />
-          </q-item-section>
-        </q-item>
-      </q-list>
-      <q-card-section>
-        <q-btn
-          class="full-width"
-          color="primary"
-          :disable="totalCount >= MAX_IP_COUNT"
-          :label="i18n('labels.requestScan')"
-          no-caps
-          @click="requestScan"
-        />
-      </q-card-section>
-    </q-card>
-    <q-card
-      v-if="scanDetail"
-      class="col-grow column"
+  <q-card class="column" bordered flat>
+    <q-card-section class="row items-center justify-between">
+      <div class="text-body1">
+        {{ i18n('labels.ipRanges') }}
+      </div>
+      <q-btn
+        color="primary"
+        dense
+        icon="add"
+        :label="i18n('labels.addRange')"
+        no-caps
+        @click="ipRanges.push({ begin: '', end: '' })"
+      />
+    </q-card-section>
+    <q-list
       :class="{
-        'q-ml-md': $q.screen.gt.sm,
-        'q-mt-md': $q.screen.lt.md,
+        'col-grow': $q.screen.gt.sm,
       }"
       bordered
-      flat
+      separator
     >
-      <q-card-section>
-        <div class="row items-center q-gutter-x-sm">
-          <div class="text-body1">
-            {{ i18n('labels.scanProgress') }}
+      <q-item v-for="(ipRange, index) in ipRanges" :key="index">
+        <q-item-section>
+          <div class="row justify-end items-baseline q-gutter-x-sm">
+            <ip-input v-model="ipRange.begin" />
+            <div class="text-body1">~</div>
+            <ip-input v-model="ipRange.end" />
           </div>
-          <q-linear-progress
-            class="col-grow bg-grey-4"
-            :animation-speed="POLL_INTERVAL_MS * 2"
-            :buffer="1 - scanDetail.queuedCount / scanDetail.totalCount"
-            color="primary"
-            rounded
-            size="2rem"
-            track-color="secondary"
-            :value="
-              1 - (scanDetail.queuedCount + scanDetail.processingCount) / scanDetail.totalCount
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            color="negative"
+            dense
+            icon="delete"
+            @click="
+              ipRanges.length > 1
+                ? ipRanges.splice(index, 1)
+                : (ipRanges = [{ begin: '', end: '' }])
             "
-          >
-            <div class="absolute-full flex flex-center">
-              <q-badge
-                color="white"
-                text-color="accent"
-                :label="`${((1 - (scanDetail.queuedCount + scanDetail.processingCount) / scanDetail.totalCount) * 100).toFixed(2)}%`"
-              />
-            </div>
-          </q-linear-progress>
+          />
+        </q-item-section>
+      </q-item>
+    </q-list>
+    <q-card-section>
+      <q-btn
+        class="full-width"
+        color="primary"
+        :disable="totalCount >= MAX_IP_COUNT"
+        :label="i18n('labels.requestScan')"
+        no-caps
+        @click="requestScan"
+      />
+    </q-card-section>
+  </q-card>
+  <q-card
+    v-if="modelValue"
+    class="col-grow column"
+    :class="{
+      'q-ml-md': $q.screen.gt.sm,
+      'q-mt-md': $q.screen.lt.md,
+    }"
+    bordered
+    flat
+  >
+    <q-card-section>
+      <div class="row items-center q-gutter-x-sm">
+        <div class="text-body1">
+          {{ i18n('labels.scanProgress') }}
         </div>
-      </q-card-section>
-      <q-separator />
-      <q-scroll-area class="col-grow" style="height: 10vh">
-        <scan-result-grid-view
-          v-show="display === 'grid'"
-          class="q-pa-md"
-          :model-value="scanDetail.recognized"
-        />
-        <scan-result-list-view
-          v-show="display === 'list'"
-          class="q-pa-md"
-          :model-value="scanDetail.recognized"
-        />
-      </q-scroll-area>
-    </q-card>
-  </div>
+        <q-linear-progress
+          class="col-grow bg-grey-4"
+          :animation-speed="POLL_INTERVAL_MS * 2"
+          :buffer="1 - modelValue.queuedCount / modelValue.totalCount"
+          color="primary"
+          rounded
+          size="2rem"
+          track-color="secondary"
+          :value="1 - (modelValue.queuedCount + modelValue.processingCount) / modelValue.totalCount"
+        >
+          <div class="absolute-full flex flex-center">
+            <q-badge
+              color="white"
+              text-color="accent"
+              :label="`${((1 - (modelValue.queuedCount + modelValue.processingCount) / modelValue.totalCount) * 100).toFixed(2)}%`"
+            />
+          </div>
+        </q-linear-progress>
+      </div>
+    </q-card-section>
+    <q-separator />
+  </q-card>
 </template>
 
 <style scoped></style>
