@@ -1,142 +1,13 @@
 <script setup lang="ts">
-import { IPv4 } from 'ip-num';
 import { storeToRefs } from 'pinia';
-import { useQuasar } from 'quasar';
-import { computed, onBeforeUnmount, ref } from 'vue';
 
 import IpInput from 'components/devices/IpInput.vue';
 
-import type { ScanDetail } from 'src/api/scans';
-import { createScan, getScan } from 'src/api/scans';
 import { i18nSubPath } from 'src/utils/common';
 import { useScansStore } from 'stores/scans';
 
-const modelValue = defineModel<ScanDetail | undefined>({ required: true });
-
-const { notify } = useQuasar();
 const { ipRanges } = storeToRefs(useScansStore());
 const i18n = i18nSubPath('components.devices.ScanPanel');
-
-const MAX_IP_COUNT = 65536n;
-const POLL_INTERVAL_MS = 500;
-
-const getScanInterval = ref<number>();
-const isPolling = ref(false);
-const scanId = ref<string>();
-
-const totalCount = computed(() =>
-  ipRanges.value.reduce((acc, item) => {
-    try {
-      const beginNumber = IPv4.fromString(item.begin).value;
-      const endNumber = IPv4.fromString(item.end).value;
-      return (
-        acc +
-        (endNumber > beginNumber ? endNumber - beginNumber + 1n : beginNumber - endNumber + 1n)
-      );
-    } catch {
-      return MAX_IP_COUNT;
-    }
-  }, 0n),
-);
-
-const stopPolling = () => {
-  if (getScanInterval.value !== undefined) {
-    window.clearInterval(getScanInterval.value);
-    getScanInterval.value = undefined;
-  }
-};
-
-const pollScanDetail = async () => {
-  if (isPolling.value) {
-    return;
-  }
-  isPolling.value = true;
-  try {
-    await getScanDetail();
-    if (
-      modelValue.value &&
-      modelValue.value.queuedCount === 0 &&
-      modelValue.value.processingCount === 0
-    ) {
-      stopPolling();
-      notify({
-        type: 'positive',
-        message: i18n('notifications.getScanDetailSuccess'),
-      });
-    }
-  } catch (e) {
-    notify({
-      type: 'negative',
-      message: i18n('notifications.getScanDetailError'),
-      caption: (e as Error).message,
-    });
-  } finally {
-    isPolling.value = false;
-  }
-};
-
-const getScanDetail = async () => {
-  if (!scanId.value) {
-    return;
-  }
-  try {
-    const { data } = await getScan(scanId.value);
-    if (!data.success) {
-      notify({
-        type: 'negative',
-        message: i18n('notifications.getScanDetailFailed'),
-        caption: data.message,
-      });
-      return;
-    }
-    modelValue.value = data.data;
-  } catch (error) {
-    notify({
-      type: 'negative',
-      message: i18n('notifications.getScanDetailError'),
-      caption: (error as Error).message,
-    });
-  }
-};
-
-const requestScan = async () => {
-  if (getScanInterval.value !== undefined) {
-    notify({
-      type: 'warning',
-      message: i18n('notifications.requestScanInProgress'),
-    });
-    return;
-  }
-  try {
-    const { data } = await createScan(ipRanges.value);
-    if (!data.success) {
-      notify({
-        type: 'negative',
-        message: i18n('notifications.requestScanFailed'),
-        caption: data.message,
-      });
-      return;
-    }
-    scanId.value = data.data;
-    await getScanDetail();
-    getScanInterval.value = window.setInterval(() => void pollScanDetail(), POLL_INTERVAL_MS);
-    notify({
-      type: 'positive',
-      message: i18n('notifications.requestScanSuccess'),
-      caption: `id: ${data.data}`,
-    });
-  } catch (error) {
-    notify({
-      type: 'negative',
-      message: i18n('notifications.requestScanError'),
-      caption: (error as Error).message,
-    });
-  }
-};
-
-onBeforeUnmount(() => {
-  stopPolling();
-});
 </script>
 
 <template>
@@ -154,13 +25,7 @@ onBeforeUnmount(() => {
         @click="ipRanges.push({ begin: '', end: '' })"
       />
     </q-card-section>
-    <q-list
-      :class="{
-        'col-grow': $q.screen.gt.sm,
-      }"
-      bordered
-      separator
-    >
+    <q-list bordered separator>
       <q-item v-for="(ipRange, index) in ipRanges" :key="index">
         <q-item-section>
           <div class="row justify-end items-baseline q-gutter-x-sm">
@@ -183,53 +48,6 @@ onBeforeUnmount(() => {
         </q-item-section>
       </q-item>
     </q-list>
-    <q-card-section>
-      <q-btn
-        class="full-width"
-        color="primary"
-        :disable="totalCount >= MAX_IP_COUNT"
-        :label="i18n('labels.requestScan')"
-        no-caps
-        @click="requestScan"
-      />
-    </q-card-section>
-  </q-card>
-  <q-card
-    v-if="modelValue"
-    class="col-grow column"
-    :class="{
-      'q-ml-md': $q.screen.gt.sm,
-      'q-mt-md': $q.screen.lt.md,
-    }"
-    bordered
-    flat
-  >
-    <q-card-section>
-      <div class="row items-center q-gutter-x-sm">
-        <div class="text-body1">
-          {{ i18n('labels.scanProgress') }}
-        </div>
-        <q-linear-progress
-          class="col-grow bg-grey-4"
-          :animation-speed="POLL_INTERVAL_MS * 2"
-          :buffer="1 - modelValue.queuedCount / modelValue.totalCount"
-          color="primary"
-          rounded
-          size="2rem"
-          track-color="secondary"
-          :value="1 - (modelValue.queuedCount + modelValue.processingCount) / modelValue.totalCount"
-        >
-          <div class="absolute-full flex flex-center">
-            <q-badge
-              color="white"
-              text-color="accent"
-              :label="`${((1 - (modelValue.queuedCount + modelValue.processingCount) / modelValue.totalCount) * 100).toFixed(2)}%`"
-            />
-          </div>
-        </q-linear-progress>
-      </div>
-    </q-card-section>
-    <q-separator />
   </q-card>
 </template>
 

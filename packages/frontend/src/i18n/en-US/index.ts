@@ -8,16 +8,6 @@ export default {
           invalidIp: 'Invalid IP Address',
         },
       },
-      ScanDialog: {
-        labels: {
-          setRegionTitle: 'Set Region',
-          setRegionDescription:
-            'Please set the region where your devices are located. This will be used for categorizing and displaying devices later.',
-          continue: 'Continue',
-          startScan: 'Start Scan',
-          bindDevices: 'Bind Devices',
-        },
-      },
       ScanPanel: {
         labels: {
           title: 'Scan Devices',
@@ -27,15 +17,6 @@ export default {
           requestScan: 'Request Scan',
           abortScan: 'AbortScan',
           scanProgress: 'Scan Progress',
-        },
-        notifications: {
-          requestScanInProgress: 'A scan is already in progress',
-          requestScanSuccess: 'Scan requested successfully',
-          requestScanFailed: 'Failed to request scan',
-          requestScanError: 'Error requesting scan',
-          getScanDetailSuccess: 'Scan details retrieved successfully',
-          getScanDetailFailed: 'Failed to get scan details',
-          getScanDetailError: 'Error getting scan details',
         },
       },
       ScanResultGridView: {
@@ -113,7 +94,18 @@ export default {
             list: 'List',
             continue: 'Continue',
             back: 'Back',
+            startScan: 'Start Scan',
+            scanProgress: 'Scan Progress',
             bindDevices: 'Bind Devices',
+          },
+          notifications: {
+            requestScanInProgress: 'A scan is already in progress',
+            requestScanSuccess: 'Scan requested successfully',
+            requestScanFailed: 'Failed to request scan',
+            requestScanError: 'Error requesting scan',
+            getScanDetailSuccess: 'Scan details retrieved successfully',
+            getScanDetailFailed: 'Failed to get scan details',
+            getScanDetailError: 'Error getting scan details',
           },
         },
         DeviceDetailsDrawer: {
