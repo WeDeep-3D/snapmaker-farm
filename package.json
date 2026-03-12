@@ -11,8 +11,8 @@
     "format:frontend": "bun run --cwd packages/frontend format",
     "format:backend": "bun run --cwd packages/backend format",
     "docker-dev:create": "docker compose -f compose.dev.yaml up --build --force-recreate -d",
-    "docker-dev:up": "docker compose -f compose.dev.yaml up -d",
-    "docker-dev:stop": "docker compose -f compose.dev.yaml down",
-    "docker-dev:remove": "docker compose -f compose.dev.yaml down -v"
+    "docker-dev:remove": "docker compose -f compose.dev.yaml down -v",
+    "docker-dev:recreate": "bun run docker-dev:remove && bun run docker-dev:create",
+    "migration:push": "bun run --cwd packages/backend migration:push"
   }
 }

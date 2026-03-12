@@ -43,3 +43,7 @@ yarn-error.log*
 **/*.log
 package-lock.json
 **/*.bun
+
+# Static files
+/public/
+!/public/.gitkeep
