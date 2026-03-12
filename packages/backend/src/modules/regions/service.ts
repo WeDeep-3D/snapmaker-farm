@@ -1,14 +1,13 @@
 import { and, eq } from 'drizzle-orm'
-import { hostname } from 'node:os'
 import { Elysia } from 'elysia'
 
 import { db } from '@/database'
 import { backendRegions } from '@/database/schema'
 import { log } from '@/log'
 import { buildSuccessResponse } from '@/utils/common'
+import { ensureBackendId } from '@/modules/regions/utils'
 
-// Resolve backend ID: prefer env var, fallback to hostname
-export const backendId = process.env['BACKEND_ID'] || hostname()
+export const backendId = ensureBackendId()
 
 // In-memory cache for fast access to current backend's accessible regions
 let cachedRegions: Set<string> = new Set()
