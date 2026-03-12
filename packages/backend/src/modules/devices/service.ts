@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios'
-import { sql } from 'drizzle-orm'
+import { inArray, isNull, or, sql } from 'drizzle-orm'
 import { Elysia } from 'elysia'
 import { isIP } from 'node:net'
 
@@ -8,6 +8,7 @@ import type { GetSystemInfoResp } from '@/api/snapmaker/types'
 import { db } from '@/database'
 import { devices } from '@/database/schema'
 import { log } from '@/log'
+import { getAccessibleRegions } from '@/modules/regions/service'
 import { buildSuccessResponse } from '@/utils/common'
 import { packToZipStream } from '@/utils/io'
 import { checkTcpPortOpen } from '@/utils/net'
@@ -97,6 +98,7 @@ async function bindDevice(bindDeviceItem: BindDeviceItem): Promise<BindDeviceRes
           ethMac: networkInfo.ethMac,
           wlanIp: networkInfo.wlanIp,
           wlanMac: networkInfo.wlanMac,
+          region: bindDeviceItem.region,
         })
         .onConflictDoUpdate({
           target: [devices.model, devices.serialNumber],
@@ -106,6 +108,7 @@ async function bindDevice(bindDeviceItem: BindDeviceItem): Promise<BindDeviceRes
             ethMac: networkInfo.ethMac,
             wlanIp: networkInfo.wlanIp,
             wlanMac: networkInfo.wlanMac,
+            ...(bindDeviceItem.region !== undefined ? { region: bindDeviceItem.region } : {}),
             updatedAt: sql`now()`,
           },
         })
@@ -181,8 +184,23 @@ export const devicesService = new Elysia({ name: 'devices.service' })
     unknownDevices: new Map<string, SnapmakerDevice>(),
   })
   .onStart(async ({ store }) => {
-    const allDevices = await db.select().from(devices)
-    log.debug({ allDevices }, 'Try connecting to all devices on startup')
+    const accessibleRegions = getAccessibleRegions()
+
+    // If regions are configured, only load devices in those regions (+ devices with no region)
+    let allDevices: (typeof devices.$inferSelect)[]
+    if (accessibleRegions.size > 0) {
+      allDevices = await db
+        .select()
+        .from(devices)
+        .where(or(inArray(devices.region, [...accessibleRegions]), isNull(devices.region)))
+    } else {
+      allDevices = await db.select().from(devices)
+    }
+
+    log.debug(
+      { allDevices, accessibleRegions: [...accessibleRegions] },
+      'Try connecting to all devices on startup',
+    )
     const results = await Promise.allSettled(
       allDevices.map(async (device) => {
         const ip = device.ethIp ?? device.wlanIp

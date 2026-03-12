@@ -9,6 +9,7 @@ import { log } from '@/log'
 import { devices } from '@/modules/devices'
 import { plates } from '@/modules/plates'
 import { projects } from '@/modules/projects'
+import { regions } from '@/modules/regions'
 import { scans } from '@/modules/scans'
 
 const staticFilesPrefix = '/public'
@@ -21,6 +22,12 @@ const app = new Elysia()
         format: 'uri',
         description: 'Database connection URL',
       }),
+      BACKEND_ID: t.Optional(
+        t.String({
+          description:
+            'Unique identifier for this backend instance. Defaults to hostname if not set.',
+        }),
+      ),
     }),
   )
   .use(
@@ -44,6 +51,7 @@ const app = new Elysia()
   )
   .use(staticPlugin({ prefix: staticFilesPrefix }))
   .use(cors())
+  .use(regions)
   .use(devices)
   .use(plates)
   .use(projects)

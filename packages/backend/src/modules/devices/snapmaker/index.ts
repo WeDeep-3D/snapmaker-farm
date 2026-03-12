@@ -11,7 +11,10 @@ export class SnapmakerDevice {
   private _httpApi: HttpApi
   private _ws: WebSocket
 
+  readonly dbRecord: typeof devices.$inferSelect
+
   constructor(ip: string, device: typeof devices.$inferSelect) {
+    this.dbRecord = device
     this._httpApi = new HttpApi(ip)
     this._ws = new WebSocket(`ws://${ip}:7125/websocket`)
     this._ws.onclose = (event) => {

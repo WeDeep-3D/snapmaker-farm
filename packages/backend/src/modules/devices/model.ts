@@ -9,6 +9,7 @@ const deviceSelectSchema = createSelectSchema(devices)
 const bindDeviceItem = t.Object({
   ip: t.String({ format: 'ipv4' }),
   force: t.Optional(t.Boolean({ default: false })),
+  region: t.Optional(t.String({ minLength: 1 })),
 })
 export type BindDeviceItem = typeof bindDeviceItem.static
 
