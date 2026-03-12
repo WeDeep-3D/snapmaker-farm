@@ -61,9 +61,14 @@ export default {
       ScanResultPanel: {
         labels: {
           scanProgress: '扫描进度',
-          displayMode: '显示模式',
-          grid: '网格',
-          list: '列表',
+          networkType: {
+            wired: '有线',
+            wireless: '无线',
+            unknown: '未知',
+          },
+          selectUnselectAll: '全选/反选',
+          selectWired: '选择有线设备',
+          selectWireless: '选择无线设备',
         },
       },
     },

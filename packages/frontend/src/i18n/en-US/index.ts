@@ -61,9 +61,14 @@ export default {
       ScanResultPanel: {
         labels: {
           scanProgress: 'Scan Progress',
-          displayMode: 'Display Mode',
-          grid: 'Grid',
-          list: 'List',
+          networkType: {
+            wired: 'Wired',
+            wireless: 'Wireless',
+            unknown: 'Unknown',
+          },
+          selectUnselectAll: 'Select/Unselect All',
+          selectWired: 'Select Wired',
+          selectWireless: 'Select Wireless',
         },
       },
     },
