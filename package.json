@@ -1,0 +1,18 @@
+{
+  "name": "snapmaker-farm",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev:frontend": "bun run --cwd packages/frontend dev",
+    "dev:backend": "bun run --cwd packages/backend dev",
+    "build:frontend": "bun run --cwd packages/frontend build",
+    "lint:frontend": "bun run --cwd packages/frontend lint",
+    "lint:backend": "bun run --cwd packages/backend lint",
+    "format:frontend": "bun run --cwd packages/frontend format",
+    "format:backend": "bun run --cwd packages/backend format",
+    "docker-dev:create": "docker compose -f compose.dev.yaml up --build --force-recreate -d",
+    "docker-dev:up": "docker compose -f compose.dev.yaml up -d",
+    "docker-dev:stop": "docker compose -f compose.dev.yaml down",
+    "docker-dev:remove": "docker compose -f compose.dev.yaml down -v"
+  }
+}
