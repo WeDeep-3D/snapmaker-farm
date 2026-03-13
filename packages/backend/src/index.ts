@@ -82,5 +82,7 @@ const app = new Elysia()
   })
   .listen(3000)
 
+export type App = typeof app
+
 log.info(`🦊 ElysiaJS is running at ${app.server?.url}`)
 log.info(`⚡️ Check OpenAPI docs at ${app.server?.url}openapi`)

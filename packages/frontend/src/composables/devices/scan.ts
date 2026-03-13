@@ -3,10 +3,13 @@ import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
-import type { ScanDetail } from 'src/api/scans';
-import { createScan, getScan } from 'src/api/scans';
+import type { GetScanRespBody } from '@/modules/scans/model';
+
 import { i18nSubPath } from 'src/utils/common';
 import { useScansStore } from 'stores/scans';
+import { app } from 'boot/eden';
+
+type ScanDetail = NonNullable<GetScanRespBody['data']>;
 
 export const MAX_IP_COUNT = 65536n;
 
@@ -73,12 +76,12 @@ export const useScan = () => {
       return;
     }
     try {
-      const { data } = await getScan(scanId.value);
-      if (!data.success) {
+      const { data, error } = await app.api.v1.scans({ scanId:scanId.value }).get();
+      if (error) {
         notify({
           type: 'negative',
           message: i18n('notifications.getScanDetailFailed'),
-          caption: data.message,
+          caption: error.value.message ?? i18n('notifications.unknownError'),
         });
         return;
       }
@@ -126,12 +129,12 @@ export const useScan = () => {
       return;
     }
     try {
-      const { data } = await createScan(ipRanges.value);
-      if (!data.success) {
+      const { data, error } = await app.api.v1.scans.post(ipRanges.value)
+      if (error) {
         notify({
           type: 'negative',
           message: i18n('notifications.requestScanFailed'),
-          caption: data.message,
+          caption: error.value.message ?? i18n('notifications.unknownError'),
         });
         return;
       }

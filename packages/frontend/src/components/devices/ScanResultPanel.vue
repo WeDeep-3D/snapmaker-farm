@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import type { ScanDetail } from 'src/api/scans';
+import type { GetScanRespBody } from '@/modules/scans/model';
+
 import { i18nSubPath } from 'src/utils/common';
+
+type ScanDetail = NonNullable<GetScanRespBody['data']>;
 
 const props = defineProps<{
   scanDetail: ScanDetail | undefined;

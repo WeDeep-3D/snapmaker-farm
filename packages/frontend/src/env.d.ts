@@ -1,3 +1,5 @@
+/// <reference types="bun-types" />
+
 declare namespace NodeJS {
   interface ProcessEnv {
     DEV: boolean;

@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import axios from 'axios';
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 
-import type { ScanDetail } from 'src/api/scans';
+import type { GetScanRespBody } from '@/modules/scans/model';
+
 import { i18nSubPath } from 'src/utils/common';
+
+type ScanDetail = NonNullable<GetScanRespBody['data']>;
 
 const props = defineProps<{
   modelValue: ScanDetail['recognized'];
@@ -78,12 +80,23 @@ const startUpload = async () => {
   try {
     const results = await Promise.allSettled(
       targetDevices.map(async (ip) => {
-        // noinspection HttpUrlsUsage
-        await axios.post(`http://${ip}:7125/server/files/upload`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
-            selectedDevices.value.set(ip, progressEvent.loaded / (progressEvent.total ?? fileSize));
-          },
+        return new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.upload.addEventListener('progress', (e) => {
+            selectedDevices.value.set(ip, e.loaded / (e.total ?? fileSize));
+          });
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve();
+            } else {
+              reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+            }
+          });
+          xhr.addEventListener('error', () => reject(new Error('Network error')));
+          xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
+          // noinspection HttpUrlsUsage
+          xhr.open('POST', `http://${ip}:7125/server/files/upload`);
+          xhr.send(formData);
         });
       }),
     );
@@ -165,11 +178,7 @@ const startUpload = async () => {
             <div>
               {{ deviceInfo.name }}
             </div>
-            <q-chip
-              class="text-caption"
-              dense
-              :label="deviceInfo.version"
-            />
+            <q-chip class="text-caption" dense :label="deviceInfo.version" />
           </q-item-label>
           <q-item-label caption>
             {{ deviceInfo.network.ip }}

@@ -102,6 +102,7 @@ export default {
           requestScanFailed: 'Failed to request scan',
           requestScanInProgress: 'A scan request is already in progress',
           requestScanSuccess: 'Scan requested successfully',
+          unknownError: 'An unknown error occurred',
         },
       },
     },
