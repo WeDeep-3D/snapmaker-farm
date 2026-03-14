@@ -8,7 +8,7 @@ export default {
           invalidIp: '无效的 IP 地址',
         },
       },
-      ScanPanel: {
+      ScanRangesPanel: {
         labels: {
           title: '扫描设备',
           ipRanges: 'IP 段',
@@ -17,6 +17,11 @@ export default {
           requestScan: '发起扫描',
           abortScan: '终止扫描',
           scanProgress: '扫描进度',
+        },
+      },
+      ScanRegionPanel: {
+        labels: {
+          description: '请设置您的设备所在的区域，这将用于后续分类显示设备。',
         },
       },
       ScanResultGridView: {
@@ -35,27 +40,6 @@ export default {
           copySerialNumberSuccess: '序列号已复制到剪贴板',
           copySerialNumberFailed: '复制序列号失败',
           downloadLogsFailed: '设备日志下载失败',
-        },
-      },
-      ScanResultListView: {
-        labels: {
-          networkType: {
-            wired: '有线',
-            wireless: '无线',
-            unknown: '未知',
-          },
-          selectWired: '选择有线设备',
-          selectWireless: '选择无线设备',
-          uploadGCodeFile: '上传 G-code 文件',
-          chooseFile: '选择文件...',
-          cancel: '取消',
-          startUpload: '开始上传',
-        },
-        notifications: {
-          uploadNoDeviceSelected: '上传前请至少选择一个设备。',
-          uploadSuccess: '已上传到所有 {count} 个已选设备。',
-          uploadPartial: '已上传到 {success} 个设备；{failed} 个失败。',
-          uploadFailed: '所有已选设备上传失败。',
         },
       },
       ScanResultPanel: {
@@ -102,6 +86,7 @@ export default {
           requestScanFailed: '发起扫描失败',
           requestScanInProgress: '扫描请求正在进行中',
           requestScanSuccess: '发起扫描成功',
+          unknownError: '发生未知错误',
         },
       },
     },
@@ -113,7 +98,6 @@ export default {
           labels: {
             title: '添加设备',
             setRegionTitle: '设置区域',
-            setRegionDescription: '请设置您的设备所在的区域，这将用于后续分类显示设备。',
             scanDevicesTitle: '扫描设备',
             selectDevicesTitle: '选择设备',
             continue: '继续',
@@ -124,7 +108,7 @@ export default {
         },
         DeviceDetailsDrawer: {
           labels: {
-            title: '\u8bbe\u5907\u8be6\u60c5',
+            title: '设备详情',
           },
         },
       },

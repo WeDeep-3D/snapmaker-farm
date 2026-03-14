@@ -7,7 +7,7 @@ import { i18nSubPath } from 'src/utils/common';
 import { useScansStore } from 'stores/scans';
 
 const { ipRanges } = storeToRefs(useScansStore());
-const i18n = i18nSubPath('components.devices.ScanPanel');
+const i18n = i18nSubPath('components.devices.ScanRangesPanel');
 </script>
 
 <template>

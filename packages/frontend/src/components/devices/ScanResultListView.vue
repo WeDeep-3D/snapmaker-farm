@@ -30,37 +30,6 @@ const computedDeviceInfos = computed(() => {
     .toSorted((a, b) => a.name.localeCompare(b.name));
 });
 
-const selectAll = () => {
-  if (selectedDevices.value.size === computedDeviceInfos.value.length) {
-    selectedDevices.value.clear();
-  } else {
-    computedDeviceInfos.value.forEach((deviceInfo) => {
-      const ip = deviceInfo.network.ip;
-      if (ip) {
-        selectedDevices.value.set(ip, 0);
-      }
-    });
-  }
-};
-
-const selectWired = () => {
-  computedDeviceInfos.value.forEach((deviceInfo) => {
-    const ip = deviceInfo.network.ip;
-    if (ip && deviceInfo.network.type === 'wired') {
-      selectedDevices.value.set(ip, 0);
-    }
-  });
-};
-
-const selectWireless = () => {
-  computedDeviceInfos.value.forEach((deviceInfo) => {
-    const ip = deviceInfo.network.ip;
-    if (ip && deviceInfo.network.type === 'wireless') {
-      selectedDevices.value.set(ip, 0);
-    }
-  });
-};
-
 const startUpload = async () => {
   if (!selectedFile.value) {
     return;
@@ -133,26 +102,6 @@ const startUpload = async () => {
 
 <template>
   <div class="row q-col-gutter-sm">
-    <div class="col-12">
-      <q-card class="row q-gutter-x-sm q-pa-sm" bordered flat>
-        <q-btn color="primary" dense icon="select_all" no-caps outline @click="selectAll" />
-        <q-space />
-        <q-btn
-          color="primary"
-          :label="i18n('labels.selectWired')"
-          no-caps
-          outline
-          @click="selectWired"
-        />
-        <q-btn
-          color="accent"
-          :label="i18n('labels.selectWireless')"
-          no-caps
-          outline
-          @click="selectWireless"
-        />
-      </q-card>
-    </div>
     <div
       class="col-12 col-sm-6 col-md-4 col-xl-2"
       v-for="(deviceInfo, index) in computedDeviceInfos"

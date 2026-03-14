@@ -2,11 +2,12 @@
 import { ref } from 'vue';
 
 import { bus } from 'boot/bus';
-import ScanPanel from 'components/devices/ScanPanel.vue';
+import ScanRangesPanel from 'components/devices/ScanRangesPanel.vue';
 import ScanResultPanel from 'components/devices/ScanResultPanel.vue';
 
 import { MAX_IP_COUNT, useScan } from 'src/composables/devices/scan';
 import { i18nSubPath } from 'src/utils/common';
+import ScanRegionPanel from 'components/devices/ScanRegionPanel.vue';
 
 const i18n = i18nSubPath('layouts.drawers.devices.AddDevicesDrawer');
 
@@ -41,13 +42,13 @@ const closeDrawer = () => {
 
     <q-stepper class="col-grow column" animated color="primary" flat vertical v-model="step">
       <q-step :name="1" :done="step > 1" icon="settings" :title="i18n('labels.setRegionTitle')">
-        {{ i18n('labels.setRegionDescription') }}
+        <scan-region-panel />
         <q-stepper-navigation>
           <q-btn color="primary" :label="i18n('labels.continue')" no-caps @click="step += 1" />
         </q-stepper-navigation>
       </q-step>
       <q-step :name="2" :done="step > 2" icon="radar" :title="i18n('labels.scanDevicesTitle')">
-        <scan-panel />
+        <scan-ranges-panel />
         <q-stepper-navigation>
           <q-btn
             color="primary"
@@ -103,6 +104,7 @@ const closeDrawer = () => {
 </template>
 
 <style scoped>
+/*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__content) {
   display: flex;
   flex-direction: column;
@@ -110,17 +112,20 @@ const closeDrawer = () => {
   min-height: 0;
 }
 
+/*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow) {
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
+/*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow > .q-stepper__tab) {
   flex-grow: 0;
   flex-shrink: 0;
 }
 
+/*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow > .q-stepper__step-content) {
   display: flex;
   flex-direction: column;
@@ -128,6 +133,7 @@ const closeDrawer = () => {
   min-height: 0;
 }
 
+/*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow .q-stepper__step-inner) {
   display: flex;
   flex-direction: column;

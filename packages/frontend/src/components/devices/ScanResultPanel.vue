@@ -16,7 +16,7 @@ const props = defineProps<{
 
 const i18n = i18nSubPath('components.devices.ScanResultPanel');
 
-const selectedDevices = ref(new Map<string, number>());
+const selectedDevices = ref(new Set<string>());
 
 const computedDeviceInfos = computed(() => {
   return props.scanDetail?.recognized
@@ -34,7 +34,7 @@ const selectAll = () => {
     computedDeviceInfos.value?.forEach((deviceInfo) => {
       const ip = deviceInfo.network.ip;
       if (ip) {
-        selectedDevices.value.set(ip, 0);
+        selectedDevices.value.add(ip);
       }
     });
   }
@@ -44,7 +44,7 @@ const selectWired = () => {
   computedDeviceInfos.value?.forEach((deviceInfo) => {
     const ip = deviceInfo.network.ip;
     if (ip && deviceInfo.network.type === 'wired') {
-      selectedDevices.value.set(ip, 0);
+      selectedDevices.value.add(ip);
     }
   });
 };
@@ -53,7 +53,7 @@ const selectWireless = () => {
   computedDeviceInfos.value?.forEach((deviceInfo) => {
     const ip = deviceInfo.network.ip;
     if (ip && deviceInfo.network.type === 'wireless') {
-      selectedDevices.value.set(ip, 0);
+      selectedDevices.value.add(ip);
     }
   });
 };
@@ -130,7 +130,7 @@ const selectWireless = () => {
               @click="
                 selectedDevices.has(deviceInfo.network.ip)
                   ? selectedDevices.delete(deviceInfo.network.ip)
-                  : selectedDevices.set(deviceInfo.network.ip, 0)
+                  : selectedDevices.add(deviceInfo.network.ip)
               "
             />
           </q-item-section>

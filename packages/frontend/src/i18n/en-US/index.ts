@@ -8,7 +8,7 @@ export default {
           invalidIp: 'Invalid IP Address',
         },
       },
-      ScanPanel: {
+      ScanRangesPanel: {
         labels: {
           title: 'Scan Devices',
           ipRanges: 'IP Ranges',
@@ -17,6 +17,12 @@ export default {
           requestScan: 'Request Scan',
           abortScan: 'AbortScan',
           scanProgress: 'Scan Progress',
+        },
+      },
+      ScanRegionPanel: {
+        labels: {
+          description:
+            'Please set the region for new devices. This will be used for categorizing devices later.',
         },
       },
       ScanResultGridView: {
@@ -35,27 +41,6 @@ export default {
           copySerialNumberSuccess: 'Serial number copied to clipboard',
           copySerialNumberFailed: 'Failed to copy serial number',
           downloadLogsFailed: 'Failed to download device logs',
-        },
-      },
-      ScanResultListView: {
-        labels: {
-          networkType: {
-            wired: 'Wired',
-            wireless: 'Wireless',
-            unknown: 'Unknown',
-          },
-          selectWired: 'Select Wired',
-          selectWireless: 'Select Wireless',
-          uploadGCodeFile: 'Upload G-code File',
-          chooseFile: 'Choose File...',
-          cancel: 'Cancel',
-          startUpload: 'Start Upload',
-        },
-        notifications: {
-          uploadNoDeviceSelected: 'Please select at least one device before uploading.',
-          uploadSuccess: 'Uploaded to all {count} selected device(s).',
-          uploadPartial: 'Uploaded to {success} device(s); {failed} failed.',
-          uploadFailed: 'Upload failed for all selected devices.',
         },
       },
       ScanResultPanel: {
@@ -114,8 +99,6 @@ export default {
           labels: {
             title: 'Add Devices',
             setRegionTitle: 'Set Region',
-            setRegionDescription:
-              'Please set the region where your devices are located. This will be used for categorizing and displaying devices later.',
             scanDevicesTitle: 'Scan Devices',
             selectDevicesTitle: 'Select Devices',
             continue: 'Continue',
