@@ -1,17 +1,21 @@
-import { eq } from 'drizzle-orm'
 import { Elysia } from 'elysia'
 
-import { db } from '@/database'
-import { projects } from '@/database/schema'
 import { log } from '@/log'
 import { buildErrorResponse, buildSuccessResponse } from '@/utils/common'
 
 import type { CreateProjectReqBody, UpdateProjectReqBody } from './model'
+import {
+  deleteProjectById,
+  insertProject,
+  selectAllProjects,
+  selectProjectById,
+  updateProjectById,
+} from './repository'
 
 export abstract class Project {
   static async createProject(data: CreateProjectReqBody) {
     try {
-      const insertedProject = (await db.insert(projects).values(data).returning())[0]
+      const insertedProject = await insertProject(data)
       if (!insertedProject) {
         return buildErrorResponse(500, 'Failed to create project')
       }
@@ -23,7 +27,7 @@ export abstract class Project {
   }
   static async getAllProjects() {
     try {
-      return buildSuccessResponse(await db.select().from(projects))
+      return buildSuccessResponse(await selectAllProjects())
     } catch (error) {
       log.error(error, 'Database error while fetching all projects')
       throw error
@@ -31,9 +35,7 @@ export abstract class Project {
   }
   static async getProject(projectId: string) {
     try {
-      const selectedProject = (
-        await db.select().from(projects).where(eq(projects.id, projectId)).limit(1)
-      )[0]
+      const selectedProject = await selectProjectById(projectId)
       if (!selectedProject) {
         return buildErrorResponse(404, 'Project not found')
       }
@@ -45,9 +47,7 @@ export abstract class Project {
   }
   static async updateProject(projectId: string, data: UpdateProjectReqBody) {
     try {
-      const updatedProject = (
-        await db.update(projects).set(data).where(eq(projects.id, projectId)).returning()
-      )[0]
+      const updatedProject = await updateProjectById(projectId, data)
       if (!updatedProject) {
         return buildErrorResponse(404, 'Project not found')
       }
@@ -59,9 +59,7 @@ export abstract class Project {
   }
   static async deleteProject(projectId: string) {
     try {
-      const deletedProject = (
-        await db.delete(projects).where(eq(projects.id, projectId)).returning()
-      )[0]
+      const deletedProject = await deleteProjectById(projectId)
       if (!deletedProject) {
         return buildErrorResponse(404, 'Project not found')
       }

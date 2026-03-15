@@ -22,6 +22,10 @@ export default {
       ScanRegionPanel: {
         labels: {
           description: '请设置您的设备所在的区域，这将用于后续分类显示设备。',
+          region: '区域',
+          newRegion: '新建区域',
+          confirm: '确认',
+          cancel: '取消',
         },
       },
       ScanResultGridView: {
@@ -77,7 +81,17 @@ export default {
   },
   composables: {
     devices: {
-      scan: {
+      regionsApi: {
+        notifications: {
+          createRegionError: '创建区域时发生错误',
+          createRegionFailed: '创建区域失败',
+          createRegionSuccess: '创建区域成功',
+          getRegionsError: '获取区域时发生错误',
+          getRegionsFailed: '获取区域失败',
+          unknownError: '发生未知错误',
+        },
+      },
+      scansApi: {
         notifications: {
           getScanDetailError: '获取扫描详情时发生错误',
           getScanDetailFailed: '获取扫描详情失败',

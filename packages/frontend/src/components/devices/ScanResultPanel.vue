@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 
 import type { GetScanRespBody } from '@/modules/scans/model';
 
+import { POLL_INTERVAL_MS } from 'src/composables/devices/scansApi/constants';
 import { i18nSubPath } from 'src/utils/common';
 
 type ScanDetail = NonNullable<GetScanRespBody['data']>;
@@ -11,7 +12,6 @@ const props = defineProps<{
   scanDetail: ScanDetail | undefined;
   scanProgress: number;
   scanBuffer: number;
-  pollIntervalMs: number;
 }>();
 
 const i18n = i18nSubPath('components.devices.ScanResultPanel');
@@ -68,7 +68,7 @@ const selectWireless = () => {
         </div>
         <q-linear-progress
           class="col-grow bg-grey-4"
-          :animation-speed="props.pollIntervalMs * 2"
+          :animation-speed="POLL_INTERVAL_MS * 2"
           :buffer="props.scanBuffer"
           color="primary"
           rounded

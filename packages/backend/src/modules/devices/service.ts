@@ -1,19 +1,17 @@
 import { AxiosError } from 'axios'
-import { inArray, isNull, or, sql } from 'drizzle-orm'
 import { Elysia } from 'elysia'
 import { isIP } from 'node:net'
 
 import { HttpApi } from '@/api/snapmaker'
-import type { GetSystemInfoResp } from '@/api/snapmaker/types'
-import { db } from '@/database'
-import { devices } from '@/database/schema'
+import { type GetSystemInfoResp, KlippyState } from '@/api/snapmaker/types'
+import type { devices } from '@/database/schema'
 import { log } from '@/log'
-import { getAccessibleRegions } from '@/modules/regions/service'
 import { buildSuccessResponse } from '@/utils/common'
 import { packToZipStream } from '@/utils/io'
 import { checkTcpPortOpen } from '@/utils/net'
 
 import type { BindDeviceItem, BindDeviceResult } from './model'
+import { getAllDevices, getDevicesByRegionId, upsertDevice } from './repository'
 import { SnapmakerDevice } from './snapmaker'
 import { BINDING_FILENAME, extractNetworkInfo, getDbFingerprint } from './utils'
 
@@ -87,33 +85,16 @@ async function bindDevice(bindDeviceItem: BindDeviceItem): Promise<BindDeviceRes
   const model = 'Snapmaker:U1' as const
 
   try {
-    const upsertedDevice = (
-      await db
-        .insert(devices)
-        .values({
-          model,
-          serialNumber: product_info.serial_number,
-          description: `${product_info.device_name} (FW: ${product_info.firmware_version})`,
-          ethIp: networkInfo.ethIp,
-          ethMac: networkInfo.ethMac,
-          wlanIp: networkInfo.wlanIp,
-          wlanMac: networkInfo.wlanMac,
-          region: bindDeviceItem.region,
-        })
-        .onConflictDoUpdate({
-          target: [devices.model, devices.serialNumber],
-          set: {
-            description: `${product_info.device_name} (FW: ${product_info.firmware_version})`,
-            ethIp: networkInfo.ethIp,
-            ethMac: networkInfo.ethMac,
-            wlanIp: networkInfo.wlanIp,
-            wlanMac: networkInfo.wlanMac,
-            ...(bindDeviceItem.region !== undefined ? { region: bindDeviceItem.region } : {}),
-            updatedAt: sql`now()`,
-          },
-        })
-        .returning()
-    )[0]
+    const upsertedDevice = await upsertDevice({
+      model,
+      serialNumber: product_info.serial_number,
+      description: `${product_info.device_name} (FW: ${product_info.firmware_version})`,
+      ethIp: networkInfo.ethIp,
+      ethMac: networkInfo.ethMac,
+      wlanIp: networkInfo.wlanIp,
+      wlanMac: networkInfo.wlanMac,
+      regionId: bindDeviceItem.regionId,
+    })
 
     if (!upsertedDevice) {
       return {
@@ -139,6 +120,32 @@ async function bindDevice(bindDeviceItem: BindDeviceItem): Promise<BindDeviceRes
 }
 
 export abstract class Devices {
+  static async getDevices(regionId?: string) {
+    const deviceList = regionId ? await getDevicesByRegionId(regionId) : await getAllDevices()
+    return buildSuccessResponse(
+      await Promise.all(
+        deviceList.map(async (device) => {
+          const ip =
+            device.ethIp && isIP(device.ethIp)
+              ? device.ethIp
+              : device.wlanIp && isIP(device.wlanIp)
+                ? device.wlanIp
+                : undefined
+          const printerInfo = ip ? await new HttpApi(ip).getPrinterInfo() : undefined
+          return {
+            ...device,
+            printerInfo: {
+              state: printerInfo?.result.state ?? KlippyState.unknown,
+              logFile: printerInfo?.result.log_file ?? '',
+              configFile: printerInfo?.result.config_file ?? '',
+              softwareVersion: printerInfo?.result.software_version ?? '',
+            },
+          }
+        }),
+      ),
+    )
+  }
+
   static async downloadLogs(ip: string) {
     const api = new HttpApi(ip)
     const { result: fileList } = await api.listAvailableFiles('logs')
@@ -184,23 +191,9 @@ export const devicesService = new Elysia({ name: 'devices.service' })
     unknownDevices: new Map<string, SnapmakerDevice>(),
   })
   .onStart(async ({ store }) => {
-    const accessibleRegions = getAccessibleRegions()
+    const allDevices = await getAllDevices()
 
-    // If regions are configured, only load devices in those regions (+ devices with no region)
-    let allDevices: (typeof devices.$inferSelect)[]
-    if (accessibleRegions.size > 0) {
-      allDevices = await db
-        .select()
-        .from(devices)
-        .where(or(inArray(devices.region, [...accessibleRegions]), isNull(devices.region)))
-    } else {
-      allDevices = await db.select().from(devices)
-    }
-
-    log.debug(
-      { allDevices, accessibleRegions: [...accessibleRegions] },
-      'Try connecting to all devices on startup',
-    )
+    log.debug({ allDevices }, 'Try connecting to all devices on startup')
     const results = await Promise.allSettled(
       allDevices.map(async (device) => {
         const ip = device.ethIp ?? device.wlanIp
@@ -209,7 +202,7 @@ export const devicesService = new Elysia({ name: 'devices.service' })
           return
         }
         try {
-          if ((await new HttpApi(ip).getMoonrakerInfo()).result?.moonraker_version.length) {
+          if ((await new HttpApi(ip).getPrinterInfo()).result?.state === KlippyState.ready) {
             store.connectedDevices.set(device.id, new SnapmakerDevice(ip, device))
           } else {
             store.unknownDevices.set(device.id, new SnapmakerDevice(ip, device))

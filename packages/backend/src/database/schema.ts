@@ -95,33 +95,33 @@ export const devices = pgTable(
     ethMac: char('eth_mac', { length: 17 }),
     wlanIp: inet('wlan_ip'),
     wlanMac: char('wlan_mac', { length: 17 }),
-    // Region field
-    region: text(),
     // Relation fields
+    regionId: uuid('region_id'),
     projectId: uuid('project_id'),
     plateId: uuid('plate_id'),
   },
   (table) => [
     index('idx_devices_id').using('btree', table.id.asc().nullsLast().op('uuid_ops')),
     index('idx_devices_plate_id').using('btree', table.plateId.asc().nullsLast().op('uuid_ops')),
-    index('idx_devices_region').using('btree', table.region.asc().nullsLast()),
+    index('idx_devices_region_id').using('btree', table.regionId.asc().nullsLast().op('uuid_ops')),
     uniqueIndex('uq_devices_model_serial').on(table.model, table.serialNumber),
   ],
 )
 
-export const backendRegions = pgTable(
-  'backend_regions',
+export const regions = pgTable(
+  'regions',
   {
-    backendId: text('backend_id').notNull(),
-    region: text('region').notNull(),
+    id: uuid()
+      .default(sql`uuidv7()`)
+      .primaryKey()
+      .notNull(),
+    name: text().notNull(),
+    description: text(),
     createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
   },
   (table) => [
-    primaryKey({
-      columns: [table.backendId, table.region],
-      name: 'backend_regions_pkey',
-    }),
-    index('idx_backend_regions_backend_id').using('btree', table.backendId),
+    index('idx_regions_id').using('btree', table.id.asc().nullsLast().op('uuid_ops')),
+    uniqueIndex('uq_regions_name').on(table.name),
   ],
 )
 export const filaments = pgTable(

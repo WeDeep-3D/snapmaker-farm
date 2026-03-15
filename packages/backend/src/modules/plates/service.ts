@@ -1,17 +1,15 @@
-import { eq } from 'drizzle-orm'
 import { Elysia } from 'elysia'
 
-import { db } from '@/database'
-import { plates } from '@/database/schema'
 import { log } from '@/log'
 import { buildErrorResponse, buildSuccessResponse } from '@/utils/common'
 
 import type { CreatePlateReqBody, UpdatePlateReqBody } from './model'
+import { deletePlateById, insertPlate, selectPlateById, updatePlateById } from './repository'
 
 export abstract class Plates {
   static async createPlate(data: CreatePlateReqBody) {
     try {
-      const insertedPlate = (await db.insert(plates).values(data).returning())[0]
+      const insertedPlate = await insertPlate(data)
       if (!insertedPlate) {
         return buildErrorResponse(500, 'Failed to create plate')
       }
@@ -23,9 +21,7 @@ export abstract class Plates {
   }
   static async getPlate(plateId: string) {
     try {
-      const selectedPlate = (
-        await db.select().from(plates).where(eq(plates.id, plateId)).limit(1)
-      )[0]
+      const selectedPlate = await selectPlateById(plateId)
       if (!selectedPlate) {
         return buildErrorResponse(404, 'Plate not found')
       }
@@ -37,9 +33,7 @@ export abstract class Plates {
   }
   static async updatePlate(plateId: string, data: UpdatePlateReqBody) {
     try {
-      const updatedPlate = (
-        await db.update(plates).set(data).where(eq(plates.id, plateId)).returning()
-      )[0]
+      const updatedPlate = await updatePlateById(plateId, data)
       if (!updatedPlate) {
         return buildErrorResponse(404, 'Plate not found')
       }
@@ -51,7 +45,7 @@ export abstract class Plates {
   }
   static async deletePlate(plateId: string) {
     try {
-      const deletedPlate = (await db.delete(plates).where(eq(plates.id, plateId)).returning())[0]
+      const deletedPlate = await deletePlateById(plateId)
       if (!deletedPlate) {
         return buildErrorResponse(404, 'Plate not found')
       }

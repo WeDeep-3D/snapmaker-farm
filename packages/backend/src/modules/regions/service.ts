@@ -1,111 +1,61 @@
-import { and, eq } from 'drizzle-orm'
-import { Elysia } from 'elysia'
+import { buildErrorResponse, buildSuccessResponse } from '@/utils/common'
 
-import { db } from '@/database'
-import { backendRegions } from '@/database/schema'
-import { log } from '@/log'
-import { buildSuccessResponse } from '@/utils/common'
-import { ensureBackendId } from '@/modules/regions/utils'
-
-export const backendId = ensureBackendId()
-
-// In-memory cache for fast access to current backend's accessible regions
-let cachedRegions: Set<string> = new Set()
-
-async function loadRegionsFromDb(): Promise<Set<string>> {
-  const rows = await db
-    .select({ region: backendRegions.region })
-    .from(backendRegions)
-    .where(eq(backendRegions.backendId, backendId))
-  return new Set(rows.map((r) => r.region))
-}
-
-/**
- * Get the current backend's accessible regions as a Set (from cache).
- * Returns an empty Set if no regions are configured.
- */
-export function getAccessibleRegions(): ReadonlySet<string> {
-  return cachedRegions
-}
+import type { CreateRegionReqBody, UpdateRegionReqBody } from './model'
+import {
+  createRegion,
+  deleteRegion,
+  getAllRegions,
+  getRegionById,
+  updateRegion,
+} from './repository'
 
 export abstract class Regions {
   /**
-   * Get accessible regions for the current backend.
+   * Get all regions.
    */
   static async getRegions() {
-    return buildSuccessResponse({
-      backendId,
-      regions: [...cachedRegions],
-    })
+    return buildSuccessResponse(await getAllRegions())
   }
 
   /**
-   * Add regions to the current backend's accessible list.
-   * Duplicates are silently ignored (ON CONFLICT DO NOTHING).
+   * Get a single region by ID.
    */
-  static async addRegions(regionNames: string[]) {
-    const values = regionNames.map((region) => ({
-      backendId,
-      region,
-    }))
-    await db.insert(backendRegions).values(values).onConflictDoNothing()
-
-    // Refresh cache
-    cachedRegions = await loadRegionsFromDb()
-
-    return buildSuccessResponse({
-      backendId,
-      regions: [...cachedRegions],
-    })
-  }
-
-  /**
-   * Remove a region from the current backend's accessible list.
-   */
-  static async removeRegion(region: string) {
-    await db
-      .delete(backendRegions)
-      .where(and(eq(backendRegions.backendId, backendId), eq(backendRegions.region, region)))
-
-    // Refresh cache
-    cachedRegions = await loadRegionsFromDb()
-
-    return buildSuccessResponse({
-      backendId,
-      removed: region,
-      regions: [...cachedRegions],
-    })
-  }
-
-  /**
-   * Get all regions grouped by backend ID (admin overview).
-   */
-  static async getAllRegions() {
-    const rows = await db.select().from(backendRegions)
-
-    const grouped = new Map<string, string[]>()
-    for (const row of rows) {
-      const existing = grouped.get(row.backendId)
-      if (existing) {
-        existing.push(row.region)
-      } else {
-        grouped.set(row.backendId, [row.region])
-      }
+  static async getRegion(id: string) {
+    const region = await getRegionById(id)
+    if (!region) {
+      return buildErrorResponse(404, `Region with id '${id}' not found`)
     }
+    return buildSuccessResponse(region)
+  }
 
-    return buildSuccessResponse(
-      [...grouped.entries()].map(([bid, regions]) => ({
-        backendId: bid,
-        regions,
-      })),
-    )
+  /**
+   * Create a new region.
+   * Duplicate names are silently ignored (ON CONFLICT DO NOTHING).
+   */
+  static async createRegion(body: CreateRegionReqBody) {
+    const region = await createRegion(body.name, body.description ?? undefined)
+    if (!region) {
+      return buildErrorResponse(409, `Region with name '${body.name}' already exists`)
+    }
+    return buildSuccessResponse(region)
+  }
+
+  /**
+   * Update an existing region.
+   */
+  static async updateRegion(id: string, body: UpdateRegionReqBody) {
+    const region = await updateRegion(id, body)
+    if (!region) {
+      return buildErrorResponse(404, `Region with id '${id}' not found`)
+    }
+    return buildSuccessResponse(region)
+  }
+
+  /**
+   * Delete a region by ID.
+   */
+  static async deleteRegion(id: string) {
+    await deleteRegion(id)
+    return buildSuccessResponse()
   }
 }
-
-export const regionsService = new Elysia({ name: 'regions.service' }).onStart(async () => {
-  cachedRegions = await loadRegionsFromDb()
-  log.info(
-    { backendId, regions: [...cachedRegions] },
-    'Loaded accessible regions for current backend',
-  )
-})

@@ -3,14 +3,13 @@ import { Elysia } from 'elysia'
 import { buildErrorResponse } from '@/utils/common'
 
 import { regionsModel } from './model'
-import { Regions, regionsService } from './service'
+import { Regions } from './service'
 
 export const regions = new Elysia({
   prefix: '/api/v1/regions',
   tags: ['Regions'],
 })
   .use(regionsModel)
-  .use(regionsService)
   .get(
     '/',
     async () => {
@@ -22,7 +21,24 @@ export const regions = new Elysia({
     },
     {
       response: {
-        200: 'getRegionsRespBody',
+        200: 'fullMultipleRegionsRespBody',
+        500: 'errorRespBody',
+      },
+    },
+  )
+  .get(
+    '/:id',
+    async ({ params }) => {
+      try {
+        return await Regions.getRegion(params.id)
+      } catch (error) {
+        return buildErrorResponse(500, (error as Error).message)
+      }
+    },
+    {
+      response: {
+        200: 'fullSingleRegionRespBody',
+        404: 'errorRespBody',
         500: 'errorRespBody',
       },
     },
@@ -31,47 +47,50 @@ export const regions = new Elysia({
     '/',
     async ({ body }) => {
       try {
-        return await Regions.addRegions(body.regions)
+        return await Regions.createRegion(body)
       } catch (error) {
         return buildErrorResponse(500, (error as Error).message)
       }
     },
     {
-      body: 'addRegionsReqBody',
+      body: 'createRegionReqBody',
       response: {
-        200: 'addRegionsRespBody',
+        200: 'fullSingleRegionRespBody',
+        409: 'errorRespBody',
+        500: 'errorRespBody',
+      },
+    },
+  )
+  .patch(
+    '/:id',
+    async ({ params, body }) => {
+      try {
+        return await Regions.updateRegion(params.id, body)
+      } catch (error) {
+        return buildErrorResponse(500, (error as Error).message)
+      }
+    },
+    {
+      body: 'updateRegionReqBody',
+      response: {
+        200: 'fullSingleRegionRespBody',
+        404: 'errorRespBody',
         500: 'errorRespBody',
       },
     },
   )
   .delete(
-    '/:region',
+    '/:id',
     async ({ params }) => {
       try {
-        return await Regions.removeRegion(params.region)
+        return await Regions.deleteRegion(params.id)
       } catch (error) {
         return buildErrorResponse(500, (error as Error).message)
       }
     },
     {
       response: {
-        200: 'deleteRegionRespBody',
-        500: 'errorRespBody',
-      },
-    },
-  )
-  .get(
-    '/all',
-    async () => {
-      try {
-        return await Regions.getAllRegions()
-      } catch (error) {
-        return buildErrorResponse(500, (error as Error).message)
-      }
-    },
-    {
-      response: {
-        200: 'getAllRegionsRespBody',
+        200: 'emptyRespBody',
         500: 'errorRespBody',
       },
     },

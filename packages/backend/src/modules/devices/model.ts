@@ -1,17 +1,26 @@
-import { createSelectSchema } from 'drizzle-typebox'
+import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { Elysia, t } from 'elysia'
 
+import { KlippyState } from '@/api/snapmaker/types'
 import { devices } from '@/database/schema'
 import { buildSuccessRespBody, errorRespBody } from '@/utils/model'
 
 const deviceSelectSchema = createSelectSchema(devices)
+const deviceInsertSchema = createInsertSchema(devices)
 
-const bindDeviceItem = t.Object({
-  ip: t.String({ format: 'ipv4' }),
-  force: t.Optional(t.Boolean({ default: false })),
-  region: t.Optional(t.String({ minLength: 1 })),
-})
-export type BindDeviceItem = typeof bindDeviceItem.static
+const deviceCreateSchema = t.Omit(deviceInsertSchema, ['id', 'createdAt', 'updatedAt'])
+const deviceRetrieveSchema = t.Composite([
+  deviceSelectSchema,
+  t.Object({
+    printerInfo: t.Object({
+      state: t.Enum(KlippyState),
+      logFile: t.String(),
+      configFile: t.String(),
+      softwareVersion: t.String(),
+    }),
+  }),
+])
+const deviceUpdateSchema = t.Omit(deviceCreateSchema, ['model', 'serialNumber'])
 
 const bindDeviceResult = t.Object({
   ip: t.String({ format: 'ipv4' }),
@@ -22,18 +31,30 @@ const bindDeviceResult = t.Object({
 export type BindDeviceResult = typeof bindDeviceResult.static
 
 export const devicesModel = new Elysia({ name: 'devices.model' }).model({
-  getAllDevicesRespBody: buildSuccessRespBody(
-    t.Array(
-      t.Object({
-        id: t.String({ format: 'uuid' }),
-        name: t.String(),
-        ipAddress: t.String({ format: 'ipv4' }),
-        status: t.Union([t.Literal('online'), t.Literal('offline')]),
-        lastSeen: t.String({ format: 'date-time' }),
+  fullSingleDeviceRespBody: buildSuccessRespBody(deviceRetrieveSchema),
+  fullMultipleDevicesRespBody: buildSuccessRespBody(t.Array(deviceRetrieveSchema)),
+  bindDevicesReqBody: t.Array(
+    t.Object({
+      ip: t.String({ format: 'ipv4' }),
+      force: t.Optional(t.Boolean({ default: false })),
+      regionId: t.Optional(t.String({ format: 'uuid' })),
+    }),
+  ),
+  bindDevicesRespBody: buildSuccessRespBody(t.Array(bindDeviceResult)),
+  createDeviceReqBody: deviceCreateSchema,
+  retrieveDeviceReqQuery: t.Object({
+    regionId: t.Optional(
+      t.String({
+        format: 'uuid',
+        description: 'Filter devices by region ID. If not specified, returns all devices.',
       }),
     ),
-  ),
-  bindDevicesReqBody: t.Array(bindDeviceItem),
-  bindDevicesRespBody: buildSuccessRespBody(t.Array(bindDeviceResult)),
+  }),
+  updateDeviceReqBody: t.Partial(deviceUpdateSchema),
   errorRespBody,
 })
+
+export type BindDevicesReqBody = typeof devicesModel.models.bindDevicesReqBody.schema.static
+export type BindDeviceItem = BindDevicesReqBody[number]
+export type CreateDeviceReqBody = typeof devicesModel.models.createDeviceReqBody.schema.static
+export type UpdateDeviceReqBody = typeof devicesModel.models.updateDeviceReqBody.schema.static

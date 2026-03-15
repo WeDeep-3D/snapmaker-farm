@@ -23,6 +23,10 @@ export default {
         labels: {
           description:
             'Please set the region for new devices. This will be used for categorizing devices later.',
+          region: 'Region',
+          newRegion: 'New Region',
+          confirm: 'Confirm',
+          cancel: 'Cancel',
         },
       },
       ScanResultGridView: {
@@ -78,7 +82,17 @@ export default {
   },
   composables: {
     devices: {
-      scan: {
+      regionsApi: {
+        notifications: {
+          createRegionError: 'Error creating region',
+          createRegionFailed: 'Failed to create region',
+          createRegionSuccess: 'Region created successfully',
+          getRegionsError: 'Error getting regions',
+          getRegionsFailed: 'Failed to get regions',
+          unknownError: 'An unknown error occurred',
+        },
+      },
+      scansApi: {
         notifications: {
           getScanDetailError: 'Error getting scan details',
           getScanDetailFailed: 'Failed to get scan details',

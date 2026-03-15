@@ -23,6 +23,23 @@ export interface GetMoonrakerInfoResp {
   }
 }
 
+export interface GetPrinterInfoResp {
+  result: {
+    state: KlippyState
+    state_message: string
+    hostname: string
+    klipper_path: string
+    python_path: string
+    process_id: number
+    user_id: number
+    group_id: number
+    log_file: string
+    config_file: string
+    software_version: string
+    cpu_info: string
+  }
+}
+
 export interface GetSystemInfoResp {
   result: {
     system_info: {

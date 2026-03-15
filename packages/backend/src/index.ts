@@ -24,12 +24,6 @@ const app = new Elysia()
         format: 'uri',
         description: 'Database connection URL',
       }),
-      BACKEND_ID: t.Optional(
-        t.String({
-          description:
-            'Unique identifier for this backend instance. Defaults to hostname if not set.',
-        }),
-      ),
     }),
   )
   .use(

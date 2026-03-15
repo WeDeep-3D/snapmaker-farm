@@ -2,6 +2,7 @@ import axios, { type AxiosInstance } from 'axios'
 
 import type {
   GetMoonrakerInfoResp,
+  GetPrinterInfoResp,
   GetSystemInfoResp,
   ListAvailableFilesResp,
   ListRegisteredRootsResp,
@@ -17,6 +18,10 @@ export class HttpApi {
 
   async getMoonrakerInfo() {
     return (await this._api.get<GetMoonrakerInfoResp>('/server/info')).data
+  }
+
+  async getPrinterInfo() {
+    return (await this._api.get<GetPrinterInfoResp>('/printer/info')).data
   }
 
   async getSystemInfo(): Promise<GetSystemInfoResp> {

@@ -7,14 +7,14 @@ import { buildSuccessRespBody, errorRespBody } from '@/utils/model'
 const projectSelectSchema = createSelectSchema(projects)
 const projectInsertSchema = createInsertSchema(projects)
 
-const projectChangeableSchema = t.Omit(projectInsertSchema, ['id', 'createdAt', 'updatedAt'])
-const projectEditableSchema = t.Omit(projectChangeableSchema, [])
+const projectCreateSchema = t.Omit(projectInsertSchema, ['id', 'createdAt', 'updatedAt'])
+const projectUpdateSchema = t.Omit(projectCreateSchema, [])
 
 export const projectsModel = new Elysia({ name: 'projects.model' }).model({
   fullSingleProjectRespBody: buildSuccessRespBody(projectSelectSchema),
   fullMultipleProjectsRespBody: buildSuccessRespBody(t.Array(projectSelectSchema)),
-  createProjectReqBody: projectChangeableSchema,
-  updateProjectReqBody: t.Partial(projectEditableSchema),
+  createProjectReqBody: projectCreateSchema,
+  updateProjectReqBody: t.Partial(projectUpdateSchema),
   errorRespBody,
 })
 

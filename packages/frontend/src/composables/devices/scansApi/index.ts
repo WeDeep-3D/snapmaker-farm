@@ -1,24 +1,19 @@
 import { IPv4 } from 'ip-num';
-import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
+import { storeToRefs } from 'pinia';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
-import type { GetScanRespBody } from '@/modules/scans/model';
-
-import { i18nSubPath } from 'src/utils/common';
-import { useScansStore } from 'stores/scans';
 import { app } from 'boot/eden';
+import { useScansStore } from 'stores/scans';
+import { i18nSubPath } from 'src/utils/common';
 
-type ScanDetail = NonNullable<GetScanRespBody['data']>;
+import { MAX_IP_COUNT, POLL_INTERVAL_MS } from './constants';
+import type { ScanDetail } from './types';
 
-export const MAX_IP_COUNT = 65536n;
-
-const POLL_INTERVAL_MS = 500;
-
-export const useScan = () => {
+export const useScansApi = () => {
   const { notify } = useQuasar();
   const { ipRanges } = storeToRefs(useScansStore());
-  const i18n = i18nSubPath('composables.devices.scan');
+  const i18n = i18nSubPath('composables.devices.scansApi');
 
   const scanDetail = ref<ScanDetail>();
   const scanId = ref<string>();
@@ -76,7 +71,7 @@ export const useScan = () => {
       return;
     }
     try {
-      const { data, error } = await app.api.v1.scans({ scanId:scanId.value }).get();
+      const { data, error } = await app.api.v1.scans({ scanId: scanId.value }).get();
       if (error) {
         notify({
           type: 'negative',
@@ -129,7 +124,7 @@ export const useScan = () => {
       return;
     }
     try {
-      const { data, error } = await app.api.v1.scans.post(ipRanges.value)
+      const { data, error } = await app.api.v1.scans.post(ipRanges.value);
       if (error) {
         notify({
           type: 'negative',

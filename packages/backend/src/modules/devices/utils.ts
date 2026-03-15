@@ -1,7 +1,7 @@
 import packageJson from 'package.json'
 import type { GetSystemInfoResp } from '@/api/snapmaker/types'
-import { db } from '@/database'
-import { farmMetadata } from '@/database/schema'
+
+import { getOrCreateFarmMetadata } from './repository'
 
 export const BINDING_FILENAME = `.${packageJson.name}_binding`
 
@@ -12,17 +12,7 @@ export async function getDbFingerprint(): Promise<string> {
     return cachedFarmId
   }
 
-  const existing = await db.select().from(farmMetadata).limit(1)
-  if (existing[0]) {
-    cachedFarmId = existing[0].id
-    return cachedFarmId
-  }
-
-  const inserted = (await db.insert(farmMetadata).values({}).returning())[0]
-  if (!inserted) {
-    throw new Error('Failed to initialize farm metadata')
-  }
-  cachedFarmId = inserted.id
+  cachedFarmId = await getOrCreateFarmMetadata()
   return cachedFarmId
 }
 

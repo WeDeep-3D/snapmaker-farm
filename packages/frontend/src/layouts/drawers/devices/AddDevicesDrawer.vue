@@ -1,27 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { bus } from 'boot/bus';
 import ScanRangesPanel from 'components/devices/ScanRangesPanel.vue';
+import ScanRegionPanel from 'components/devices/ScanRegionPanel.vue';
 import ScanResultPanel from 'components/devices/ScanResultPanel.vue';
 
-import { MAX_IP_COUNT, useScan } from 'src/composables/devices/scan';
+import type { Region } from 'src/composables/devices/regionsApi';
+import { useScansApi } from 'src/composables/devices/scansApi';
+import { MAX_IP_COUNT } from 'src/composables/devices/scansApi/constants';
+
+import { bus } from 'boot/bus';
 import { i18nSubPath } from 'src/utils/common';
-import ScanRegionPanel from 'components/devices/ScanRegionPanel.vue';
 
 const i18n = i18nSubPath('layouts.drawers.devices.AddDevicesDrawer');
 
-const {
-  scanDetail,
-  totalCount,
-  scanProgress,
-  scanBuffer,
-  isScanning,
-  requestScan,
-  stopPolling,
-  POLL_INTERVAL_MS,
-} = useScan();
+const { scanDetail, totalCount, scanProgress, scanBuffer, isScanning, requestScan, stopPolling } =
+  useScansApi();
 
+const region = ref<Region>();
 const step = ref(1);
 
 const continueToScan = async () => {
@@ -39,10 +35,9 @@ const closeDrawer = () => {
     <div class="text-h5 q-pt-lg q-pl-lg">
       {{ i18n('labels.title') }}
     </div>
-
-    <q-stepper class="col-grow column" animated color="primary" flat vertical v-model="step">
-      <q-step :name="1" :done="step > 1" icon="settings" :title="i18n('labels.setRegionTitle')">
-        <scan-region-panel />
+    <q-stepper class="col-grow column" active-icon="settings" animated color="primary" flat vertical v-model="step">
+      <q-step :name="1" :done="step > 1" icon="location_on" :title="i18n('labels.setRegionTitle')">
+        <scan-region-panel v-model="region" />
         <q-stepper-navigation>
           <q-btn color="primary" :label="i18n('labels.continue')" no-caps @click="step += 1" />
         </q-stepper-navigation>
@@ -77,7 +72,6 @@ const closeDrawer = () => {
           :scan-detail="scanDetail"
           :scan-progress="scanProgress"
           :scan-buffer="scanBuffer"
-          :poll-interval-ms="POLL_INTERVAL_MS"
         />
         <q-stepper-navigation>
           <q-btn
@@ -111,20 +105,17 @@ const closeDrawer = () => {
   flex-grow: 1;
   min-height: 0;
 }
-
 /*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow) {
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
-
 /*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow > .q-stepper__tab) {
   flex-grow: 0;
   flex-shrink: 0;
 }
-
 /*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow > .q-stepper__step-content) {
   display: flex;
@@ -132,7 +123,6 @@ const closeDrawer = () => {
   flex-grow: 1;
   min-height: 0;
 }
-
 /*noinspection CssUnusedSymbol*/
 :deep(.q-stepper__step.col-grow .q-stepper__step-inner) {
   display: flex;
