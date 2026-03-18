@@ -3,22 +3,15 @@ import { useQuasar } from 'quasar';
 import { app } from 'boot/eden';
 import { i18nSubPath } from 'src/utils/common';
 
-export interface Region {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: string | null;
-}
-
 export const useRegionsApi = () => {
   const { notify } = useQuasar();
   const i18n = i18nSubPath('composables.devices.regionsApi');
 
-  const createRegion = async (name: string, description?: string) => {
+  const createRegion = async (name: string, description: string | null = null) => {
     try {
       const { data, error } = await app.api.v1.regions.post({
         name,
-        ...(description !== undefined ? { description } : {}),
+        description: description,
       });
       if (error) {
         notify({
@@ -32,7 +25,7 @@ export const useRegionsApi = () => {
         type: 'positive',
         message: i18n('notifications.createRegionSuccess'),
       });
-      return data.data as Region | undefined;
+      return data.data;
     } catch (error) {
       notify({
         type: 'negative',
@@ -53,7 +46,7 @@ export const useRegionsApi = () => {
         });
         return;
       }
-      return data.data as Region[] | undefined;
+      return data.data;
     } catch (error) {
       notify({
         type: 'negative',
@@ -68,3 +61,7 @@ export const useRegionsApi = () => {
     getRegions,
   };
 };
+
+export type Region = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof useRegionsApi>['createRegion']>>
+>;

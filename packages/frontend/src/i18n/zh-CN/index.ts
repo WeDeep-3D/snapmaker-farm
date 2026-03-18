@@ -3,6 +3,16 @@ const productName = 'Snapmaker Farm';
 export default {
   components: {
     devices: {
+      AddRegionDialog: {
+        labels: {
+          title: '新建区域',
+          description: '请输入新区域的名称和描述信息。',
+          regionName: '区域名称',
+          regionDescription: '区域描述（可选）',
+          confirm: '确认',
+          cancel: '取消',
+        },
+      },
       IpInput: {
         labels: {
           invalidIp: '无效的 IP 地址',
@@ -23,9 +33,7 @@ export default {
         labels: {
           description: '请设置您的设备所在的区域，这将用于后续分类显示设备。',
           region: '区域',
-          newRegion: '新建区域',
-          confirm: '确认',
-          cancel: '取消',
+          newRegion: '新建',
         },
       },
       ScanResultGridView: {

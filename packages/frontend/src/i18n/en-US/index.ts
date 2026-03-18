@@ -3,6 +3,16 @@ const productName = 'Snapmaker Farm';
 export default {
   components: {
     devices: {
+      AddRegionDialog: {
+        labels: {
+          title: 'New Region',
+          description: 'Please enter the name and description for the new region.',
+          regionName: 'Region Name',
+          regionDescription: 'Region Description (Optional)',
+          confirm: 'Confirm',
+          cancel: 'Cancel',
+        }
+      },
       IpInput: {
         labels: {
           invalidIp: 'Invalid IP Address',
@@ -24,9 +34,7 @@ export default {
           description:
             'Please set the region for new devices. This will be used for categorizing devices later.',
           region: 'Region',
-          newRegion: 'New Region',
-          confirm: 'Confirm',
-          cancel: 'Cancel',
+          newRegion: 'New',
         },
       },
       ScanResultGridView: {
