@@ -1,3 +1,4 @@
+import type { Treaty } from '@elysiajs/eden';
 import { useQuasar } from 'quasar';
 
 import { app } from 'boot/eden';
@@ -62,6 +63,4 @@ export const useRegionsApi = () => {
   };
 };
 
-export type Region = NonNullable<
-  Awaited<ReturnType<ReturnType<typeof useRegionsApi>['createRegion']>>
->;
+export type Region = Treaty.Data<typeof app.api.v1.regions.post>['data'];

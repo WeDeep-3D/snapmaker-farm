@@ -35,7 +35,15 @@ const closeDrawer = () => {
     <div class="text-h5 q-pt-lg q-pl-lg">
       {{ i18n('labels.title') }}
     </div>
-    <q-stepper class="col-grow column" active-icon="settings" animated color="primary" flat vertical v-model="step">
+    <q-stepper
+      class="col-grow column"
+      active-icon="settings"
+      animated
+      color="primary"
+      flat
+      vertical
+      v-model="step"
+    >
       <q-step :name="1" :done="step > 1" icon="location_on" :title="i18n('labels.setRegionTitle')">
         <scan-region-panel v-model="region" />
         <q-stepper-navigation>
