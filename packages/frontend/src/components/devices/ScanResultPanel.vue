@@ -1,59 +1,56 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-
-import type { GetScanRespBody } from '@/modules/scans/model';
+import { LocalScope } from '@all1ndev/vue-local-scope';
+import { computed } from 'vue';
 
 import { POLL_INTERVAL_MS } from 'src/composables/devices/scansApi/constants';
+import type { DeviceInfo, ScanDetail } from 'src/composables/devices/scansApi/types';
+
 import { i18nSubPath } from 'src/utils/common';
 
-type ScanDetail = NonNullable<GetScanRespBody['data']>;
-
 const props = defineProps<{
-  scanDetail: ScanDetail | undefined;
+  scanDetail: ScanDetail;
   scanProgress: number;
   scanBuffer: number;
 }>();
 
+const modelValue = defineModel<Map<string, DeviceInfo>>({
+  required: true,
+});
+
 const i18n = i18nSubPath('components.devices.ScanResultPanel');
 
-const selectedDevices = ref(new Set<string>());
+const networkTypeColor = {
+  wired: 'primary',
+  wireless: 'accent',
+  unknown: 'grey',
+};
 
 const computedDeviceInfos = computed(() => {
-  return props.scanDetail?.recognized
-    .map((deviceInfo) => ({
-      ...deviceInfo,
-      network: deviceInfo.network.toSorted((a, b) => a.type.localeCompare(b.type))[0]!,
-    }))
-    .toSorted((a, b) => a.name.localeCompare(b.name));
+  return props.scanDetail?.recognized.toSorted((a, b) => a.name.localeCompare(b.name));
 });
 
 const selectAll = () => {
-  if (selectedDevices.value.size === computedDeviceInfos.value?.length) {
-    selectedDevices.value.clear();
+  if (modelValue.value.size === computedDeviceInfos.value?.length) {
+    modelValue.value.clear();
   } else {
-    computedDeviceInfos.value?.forEach((deviceInfo) => {
-      const ip = deviceInfo.network.ip;
-      if (ip) {
-        selectedDevices.value.add(ip);
-      }
-    });
+    modelValue.value = new Map(
+      computedDeviceInfos.value?.map((deviceInfo) => [deviceInfo.serialNumber, deviceInfo]),
+    );
   }
 };
 
 const selectWired = () => {
   computedDeviceInfos.value?.forEach((deviceInfo) => {
-    const ip = deviceInfo.network.ip;
-    if (ip && deviceInfo.network.type === 'wired') {
-      selectedDevices.value.add(ip);
+    if (deviceInfo.network.find((item) => item.type === 'wired' && item.ip)) {
+      modelValue.value.set(deviceInfo.serialNumber, deviceInfo);
     }
   });
 };
 
 const selectWireless = () => {
   computedDeviceInfos.value?.forEach((deviceInfo) => {
-    const ip = deviceInfo.network.ip;
-    if (ip && deviceInfo.network.type === 'wireless') {
-      selectedDevices.value.add(ip);
+    if (deviceInfo.network.find((item) => item.type === 'wireless' && item.ip)) {
+      modelValue.value.set(deviceInfo.serialNumber, deviceInfo);
     }
   });
 };
@@ -119,47 +116,48 @@ const selectWireless = () => {
       </div>
       <q-list separator>
         <q-item
-          v-for="(deviceInfo, index) in computedDeviceInfos"
-          :key="index"
+          v-for="deviceInfo in computedDeviceInfos"
+          :key="deviceInfo.serialNumber"
           tag="label"
           v-ripple
         >
-          <q-item-section side>
-            <q-checkbox
-              :model-value="selectedDevices.has(deviceInfo.network.ip)"
-              @click="
-                selectedDevices.has(deviceInfo.network.ip)
-                  ? selectedDevices.delete(deviceInfo.network.ip)
-                  : selectedDevices.add(deviceInfo.network.ip)
-              "
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="row items-center q-gutter-x-sm">
-              <div>
-                {{ deviceInfo.name }}
-              </div>
-              <q-chip class="text-caption" dense :label="deviceInfo.version" />
-            </q-item-label>
-            <q-item-label caption>
-              {{ deviceInfo.network.ip }}
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side top>
-            <q-chip
-              class="text-caption"
-              :color="
-                deviceInfo.network.type === 'wired'
-                  ? 'primary'
-                  : deviceInfo.network.type === 'wireless'
-                    ? 'accent'
-                    : 'grey'
-              "
-              dense
-              :label="i18n(`labels.networkType.${deviceInfo.network.type ?? 'unknown'}`)"
-              text-color="white"
-            />
-          </q-item-section>
+          <LocalScope
+            :preferredNetwork="
+              deviceInfo.network.toSorted((a, b) => a.type.localeCompare(b.type))[0]
+            "
+            #default="{ preferredNetwork }"
+          >
+            <q-item-section side>
+              <q-checkbox
+                :model-value="modelValue.has(deviceInfo.serialNumber)"
+                @click="
+                  modelValue.has(deviceInfo.serialNumber)
+                    ? modelValue.delete(deviceInfo.serialNumber)
+                    : modelValue.set(deviceInfo.serialNumber, deviceInfo)
+                "
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="row items-center q-gutter-x-sm">
+                <div>
+                  {{ deviceInfo.name }}
+                </div>
+                <q-chip class="text-caption" dense :label="deviceInfo.version" />
+              </q-item-label>
+              <q-item-label v-if="preferredNetwork" caption>
+                {{ preferredNetwork.ip }}
+              </q-item-label>
+            </q-item-section>
+            <q-item-section v-if="preferredNetwork" side top>
+              <q-chip
+                class="text-caption"
+                :color="networkTypeColor[preferredNetwork.type]"
+                dense
+                :label="i18n(`labels.networkType.${preferredNetwork.type ?? 'unknown'}`)"
+                text-color="white"
+              />
+            </q-item-section>
+          </LocalScope>
         </q-item>
       </q-list>
     </q-scroll-area>

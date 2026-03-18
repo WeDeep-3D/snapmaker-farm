@@ -1,11 +1,9 @@
-import type { Treaty } from '@elysiajs/eden';
-import { useQuasar } from 'quasar';
+import { Notify } from 'quasar';
 
 import { app } from 'boot/eden';
 import { i18nSubPath } from 'src/utils/common';
 
 export const useRegionsApi = () => {
-  const { notify } = useQuasar();
   const i18n = i18nSubPath('composables.devices.regionsApi');
 
   const createRegion = async (name: string, description: string | null = null) => {
@@ -15,20 +13,20 @@ export const useRegionsApi = () => {
         description: description,
       });
       if (error) {
-        notify({
+        Notify.create({
           type: 'negative',
           message: i18n('notifications.createRegionFailed'),
           caption: error.value.message ?? i18n('notifications.unknownError'),
         });
         return;
       }
-      notify({
+      Notify.create({
         type: 'positive',
         message: i18n('notifications.createRegionSuccess'),
       });
       return data.data;
     } catch (error) {
-      notify({
+      Notify.create({
         type: 'negative',
         message: i18n('notifications.createRegionError'),
         caption: (error as Error).message,
@@ -40,7 +38,7 @@ export const useRegionsApi = () => {
     try {
       const { data, error } = await app.api.v1.regions.get();
       if (error) {
-        notify({
+        Notify.create({
           type: 'negative',
           message: i18n('notifications.getRegionsFailed'),
           caption: error.value.message ?? i18n('notifications.unknownError'),
@@ -49,7 +47,7 @@ export const useRegionsApi = () => {
       }
       return data.data;
     } catch (error) {
-      notify({
+      Notify.create({
         type: 'negative',
         message: i18n('notifications.getRegionsError'),
         caption: (error as Error).message,
@@ -62,5 +60,3 @@ export const useRegionsApi = () => {
     getRegions,
   };
 };
-
-export type Region = Treaty.Data<typeof app.api.v1.regions.post>['data'];

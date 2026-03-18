@@ -15,6 +15,7 @@
     "postinstall": "quasar prepare"
   },
   "dependencies": {
+    "@all1ndev/vue-local-scope": "^0.3.2",
     "@elysiajs/eden": "^1.4.8",
     "@quasar/extras": "^1.17.0",
     "client-zip": "^2.5.0",

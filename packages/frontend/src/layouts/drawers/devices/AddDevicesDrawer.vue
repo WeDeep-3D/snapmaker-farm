@@ -5,9 +5,10 @@ import ScanRangesPanel from 'components/devices/ScanRangesPanel.vue';
 import ScanRegionPanel from 'components/devices/ScanRegionPanel.vue';
 import ScanResultPanel from 'components/devices/ScanResultPanel.vue';
 
-import type { Region } from 'src/composables/devices/regionsApi';
+import type { Region } from 'src/composables/devices/regionsApi/types';
 import { useScansApi } from 'src/composables/devices/scansApi';
 import { MAX_IP_COUNT } from 'src/composables/devices/scansApi/constants';
+import type { DeviceInfo } from 'src/composables/devices/scansApi/types';
 
 import { bus } from 'boot/bus';
 import { i18nSubPath } from 'src/utils/common';
@@ -18,15 +19,23 @@ const { scanDetail, totalCount, scanProgress, scanBuffer, isScanning, requestSca
   useScansApi();
 
 const region = ref<Region>();
+const needBindingDeviceInfos = ref(new Map<string, DeviceInfo>());
 const step = ref(1);
 
+const cancelScanAndGoBack = () => {
+  stopPolling();
+  step.value -= 1;
+};
+const closeDrawer = () => {
+  bus.emit('drawer', 'close', 'right');
+};
 const continueToScan = async () => {
-  step.value = 3;
+  step.value += 1;
   await requestScan();
 };
 
-const closeDrawer = () => {
-  bus.emit('drawer', 'close', 'right');
+const bindDevices = () => {
+  console.log({ region: region.value, needBindingDeviceInfos: needBindingDeviceInfos.value });
 };
 </script>
 
@@ -80,6 +89,7 @@ const closeDrawer = () => {
           :scan-detail="scanDetail"
           :scan-progress="scanProgress"
           :scan-buffer="scanBuffer"
+          v-model="needBindingDeviceInfos"
         />
         <q-stepper-navigation>
           <q-btn
@@ -87,17 +97,14 @@ const closeDrawer = () => {
             :disable="isScanning"
             :label="i18n('labels.bindDevices')"
             no-caps
-            @click="closeDrawer"
+            @click="bindDevices"
           />
           <q-btn
             flat
             color="primary"
             :label="i18n('labels.back')"
             class="q-ml-sm"
-            @click="
-              stopPolling();
-              step -= 1;
-            "
+            @click="cancelScanAndGoBack"
           />
         </q-stepper-navigation>
       </q-step>

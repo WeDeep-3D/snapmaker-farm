@@ -1,5 +1,5 @@
 import { IPv4 } from 'ip-num';
-import { useQuasar } from 'quasar';
+import { Notify } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
@@ -11,7 +11,6 @@ import { MAX_IP_COUNT, POLL_INTERVAL_MS } from './constants';
 import type { ScanDetail } from './types';
 
 export const useScansApi = () => {
-  const { notify } = useQuasar();
   const { ipRanges } = storeToRefs(useScansStore());
   const i18n = i18nSubPath('composables.devices.scansApi');
 
@@ -73,7 +72,7 @@ export const useScansApi = () => {
     try {
       const { data, error } = await app.api.v1.scans({ scanId: scanId.value }).get();
       if (error) {
-        notify({
+        Notify.create({
           type: 'negative',
           message: i18n('notifications.getScanDetailFailed'),
           caption: error.value.message ?? i18n('notifications.unknownError'),
@@ -82,7 +81,7 @@ export const useScansApi = () => {
       }
       scanDetail.value = data.data;
     } catch (error) {
-      notify({
+      Notify.create({
         type: 'negative',
         message: i18n('notifications.getScanDetailError'),
         caption: (error as Error).message,
@@ -99,13 +98,13 @@ export const useScansApi = () => {
       await fetchScanDetail();
       if (scanDetail.value && !isScanning.value) {
         stopPolling();
-        notify({
+        Notify.create({
           type: 'positive',
           message: i18n('notifications.getScanDetailSuccess'),
         });
       }
     } catch (e) {
-      notify({
+      Notify.create({
         type: 'negative',
         message: i18n('notifications.getScanDetailError'),
         caption: (e as Error).message,
@@ -117,7 +116,7 @@ export const useScansApi = () => {
 
   const requestScan = async () => {
     if (getScanInterval.value !== undefined) {
-      notify({
+      Notify.create({
         type: 'warning',
         message: i18n('notifications.requestScanInProgress'),
       });
@@ -126,7 +125,7 @@ export const useScansApi = () => {
     try {
       const { data, error } = await app.api.v1.scans.post(ipRanges.value);
       if (error) {
-        notify({
+        Notify.create({
           type: 'negative',
           message: i18n('notifications.requestScanFailed'),
           caption: error.value.message ?? i18n('notifications.unknownError'),
@@ -136,13 +135,13 @@ export const useScansApi = () => {
       scanId.value = data.data;
       await fetchScanDetail();
       getScanInterval.value = window.setInterval(() => void pollScanDetail(), POLL_INTERVAL_MS);
-      notify({
+      Notify.create({
         type: 'positive',
         message: i18n('notifications.requestScanSuccess'),
         caption: `id: ${data.data}`,
       });
     } catch (error) {
-      notify({
+      Notify.create({
         type: 'negative',
         message: i18n('notifications.requestScanError'),
         caption: (error as Error).message,

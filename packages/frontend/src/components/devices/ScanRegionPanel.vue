@@ -4,7 +4,8 @@ import { onMounted, ref } from 'vue';
 
 import AddRegionDialog from 'components/devices/AddRegionDialog.vue';
 
-import { type Region, useRegionsApi } from 'src/composables/devices/regionsApi';
+import { useRegionsApi } from 'src/composables/devices/regionsApi';
+import type { Region } from 'src/composables/devices/regionsApi/types';
 
 import { i18nSubPath } from 'src/utils/common';
 
@@ -51,6 +52,14 @@ onMounted(async () => {
         outlined
         v-model="modelValue"
       >
+        <template v-slot:option="scope">
+          <q-item v-bind="scope.itemProps">
+            <q-item-section>
+              <q-item-label>{{ scope.opt.name }}</q-item-label>
+              <q-item-label caption>{{ scope.opt.description }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
         <template v-slot:after>
           <q-btn
             color="primary"
