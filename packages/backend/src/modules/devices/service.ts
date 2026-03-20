@@ -3,121 +3,18 @@ import { Elysia } from 'elysia'
 import { isIP } from 'node:net'
 
 import { HttpApi } from '@/api/snapmaker'
-import { type GetSystemInfoResp, KlippyState } from '@/api/snapmaker/types'
+import { KlippyState } from '@/api/snapmaker/types'
 import type { devices } from '@/database/schema'
 import { log } from '@/log'
-import { buildSuccessResponse } from '@/utils/common'
+import { buildErrorResponse, buildSuccessResponse } from '@/utils/common'
 import { packToZipStream } from '@/utils/io'
 import { checkTcpPortOpen } from '@/utils/net'
 
-import type { BindDeviceItem, BindDeviceResult } from './model'
+import { BINDING_FILENAME } from './constants'
+import type { CreateDeviceReqBody } from './model'
 import { getAllDevices, getDevicesByRegionId, upsertDevice } from './repository'
 import { SnapmakerDevice } from './snapmaker'
-import { BINDING_FILENAME, extractNetworkInfo, getDbFingerprint } from './utils'
-
-type DevicesStore = {
-  connectedDevices: Map<string, SnapmakerDevice>
-  disconnectedDevices: Map<string, typeof devices.$inferSelect>
-  unknownDevices: Map<string, SnapmakerDevice>
-}
-
-async function bindDevice(bindDeviceItem: BindDeviceItem): Promise<BindDeviceResult> {
-  const api = new HttpApi(bindDeviceItem.ip)
-  const fingerprint = await getDbFingerprint()
-
-  // Step 1: Check binding file on device's config root
-  let needsUpload = true
-  try {
-    const existingBinding = await api.downloadFile('config', BINDING_FILENAME)
-    const existingFingerprint = existingBinding.trim()
-
-    if (existingFingerprint === fingerprint) {
-      // Already bound by us, skip upload but still ensure device is in DB
-      needsUpload = false
-    } else if (!bindDeviceItem.force) {
-      return {
-        ip: bindDeviceItem.ip,
-        status: 'already_bound',
-        message: `Device is already bound to another backend (fingerprint: ${existingFingerprint})`,
-      }
-    }
-    // force=true with different fingerprint → will overwrite below
-  } catch (error) {
-    if (error instanceof AxiosError && error.response?.status === 404) {
-      // File doesn't exist, will create it below
-    } else {
-      return {
-        ip: bindDeviceItem.ip,
-        status: 'error',
-        message: `Failed to check binding file: ${(error as Error).message}`,
-      }
-    }
-  }
-
-  // Step 2: Upload/overwrite binding file if needed
-  if (needsUpload) {
-    try {
-      await api.uploadFile('config', BINDING_FILENAME, fingerprint)
-    } catch (error) {
-      return {
-        ip: bindDeviceItem.ip,
-        status: 'error',
-        message: `Failed to upload binding file: ${(error as Error).message}`,
-      }
-    }
-  }
-
-  // Step 3: Get system info
-  let systemInfo: GetSystemInfoResp
-  try {
-    systemInfo = await api.getSystemInfo()
-  } catch (error) {
-    return {
-      ip: bindDeviceItem.ip,
-      status: 'error',
-      message: `Failed to get system info: ${(error as Error).message}`,
-    }
-  }
-
-  // Step 4: Extract device info and upsert into DB
-  const { product_info, network } = systemInfo.result.system_info
-  const networkInfo = extractNetworkInfo(network)
-  const model = 'Snapmaker:U1' as const
-
-  try {
-    const upsertedDevice = await upsertDevice({
-      model,
-      serialNumber: product_info.serial_number,
-      description: `${product_info.device_name} (FW: ${product_info.firmware_version})`,
-      ethIp: networkInfo.ethIp,
-      ethMac: networkInfo.ethMac,
-      wlanIp: networkInfo.wlanIp,
-      wlanMac: networkInfo.wlanMac,
-      regionId: bindDeviceItem.regionId,
-    })
-
-    if (!upsertedDevice) {
-      return {
-        ip: bindDeviceItem.ip,
-        status: 'error',
-        message: 'Failed to upsert device in database',
-      }
-    }
-
-    return {
-      ip: bindDeviceItem.ip,
-      status: 'bound',
-      device: upsertedDevice,
-    }
-  } catch (error) {
-    log.error(error, 'Database error while binding device')
-    return {
-      ip: bindDeviceItem.ip,
-      status: 'error',
-      message: `Database error: ${(error as Error).message}`,
-    }
-  }
-}
+import { getAvailableIp, getDbFingerprint } from './utils'
 
 export abstract class Devices {
   static async getDevices(regionId?: string) {
@@ -125,12 +22,7 @@ export abstract class Devices {
     return buildSuccessResponse(
       await Promise.all(
         deviceList.map(async (device) => {
-          const ip =
-            device.ethIp && isIP(device.ethIp)
-              ? device.ethIp
-              : device.wlanIp && isIP(device.wlanIp)
-                ? device.wlanIp
-                : undefined
+          const ip = getAvailableIp(device)
           const printerInfo = ip ? await new HttpApi(ip).getPrinterInfo() : undefined
           return {
             ...device,
@@ -167,20 +59,63 @@ export abstract class Devices {
     })
   }
 
-  static async bindDevices(body: BindDeviceItem[], store: DevicesStore) {
-    const results = await Promise.all(body.map((item) => bindDevice(item)))
+  static async createDevice(body: CreateDeviceReqBody, force = false) {
+    const ip = getAvailableIp(body)
+    if (!ip) {
+      return buildErrorResponse(400, 'No valid IP address provided in ethIp or wlanIp')
+    }
+    const api = new HttpApi(ip)
+    const fingerprint = await getDbFingerprint()
 
-    // Update in-memory store for successfully bound devices
-    for (const result of results) {
-      if (result.status === 'bound' && result.device) {
-        const device = result.device
-        store.disconnectedDevices.delete(device.id)
-        store.unknownDevices.delete(device.id)
-        store.connectedDevices.set(device.id, new SnapmakerDevice(result.ip, device))
+    let existingFingerprint: string | null = null
+    let needsUpload = true
+    try {
+      existingFingerprint = (await api.downloadFile('config', BINDING_FILENAME)).trim()
+      if (existingFingerprint === fingerprint) {
+        needsUpload = false
+      } else if (!force) {
+        return buildErrorResponse(
+          409,
+          `Device at IP ${ip} is already bound to another backend (fingerprint: ${existingFingerprint})`,
+        )
+      }
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.status === 404) {
+        // File doesn't exist, will create it below
+      } else {
+        return buildErrorResponse(500, `Failed to check binding file: ${(error as Error).message}`)
       }
     }
 
-    return buildSuccessResponse(results)
+    if (needsUpload) {
+      try {
+        await api.uploadFile('config', BINDING_FILENAME, fingerprint)
+      } catch (error) {
+        return buildErrorResponse(500, `Failed to upload binding file: ${(error as Error).message}`)
+      }
+    }
+
+    try {
+      const upsertedDevice = await upsertDevice(body)
+      if (!upsertedDevice) {
+        // Rollback binding file if DB operation fails
+        if (needsUpload && existingFingerprint) {
+          try {
+            await api.uploadFile('config', BINDING_FILENAME, existingFingerprint)
+          } catch (rollbackError) {
+            log.error(
+              rollbackError,
+              `Failed to rollback binding file after DB error for device at IP ${ip}`,
+            )
+          }
+        }
+        return buildErrorResponse(500, 'Failed to upsert device in database')
+      }
+      return buildSuccessResponse()
+    } catch (error) {
+      log.error(error, 'Database error while binding device')
+      return buildErrorResponse(500, 'Database error while binding device')
+    }
   }
 }
 

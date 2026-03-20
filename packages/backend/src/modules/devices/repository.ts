@@ -2,6 +2,7 @@ import { eq, sql } from 'drizzle-orm'
 
 import { db } from '@/database'
 import { devices, farmMetadata } from '@/database/schema'
+import type { CreateDeviceReqBody } from '@/modules/devices/model'
 
 export const getAllDevices = async () => {
   return db.select().from(devices)
@@ -11,16 +12,7 @@ export const getDevicesByRegionId = async (regionId: string) => {
   return db.select().from(devices).where(eq(devices.regionId, regionId))
 }
 
-export const upsertDevice = async (data: {
-  model: typeof devices.$inferInsert.model
-  serialNumber: string
-  description?: string
-  ethIp?: string | null | undefined
-  ethMac?: string | null | undefined
-  wlanIp?: string | null | undefined
-  wlanMac?: string | null | undefined
-  regionId?: string | null | undefined
-}) => {
+export const upsertDevice = async (data: CreateDeviceReqBody) => {
   return (
     await db
       .insert(devices)

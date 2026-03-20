@@ -28,20 +28,21 @@ const bindDeviceResult = t.Object({
   device: t.Optional(deviceSelectSchema),
   message: t.Optional(t.String()),
 })
-export type BindDeviceResult = typeof bindDeviceResult.static
 
 export const devicesModel = new Elysia({ name: 'devices.model' }).model({
   fullSingleDeviceRespBody: buildSuccessRespBody(deviceRetrieveSchema),
   fullMultipleDevicesRespBody: buildSuccessRespBody(t.Array(deviceRetrieveSchema)),
-  bindDevicesReqBody: t.Array(
-    t.Object({
-      ip: t.String({ format: 'ipv4' }),
-      force: t.Optional(t.Boolean({ default: false })),
-      regionId: t.Optional(t.String({ format: 'uuid' })),
-    }),
-  ),
+  emptyRespBody: buildSuccessRespBody(),
   bindDevicesRespBody: buildSuccessRespBody(t.Array(bindDeviceResult)),
   createDeviceReqBody: deviceCreateSchema,
+  createDeviceReqQuery: t.Object({
+    force: t.Optional(
+      t.Boolean({
+        description:
+          'Whether to force bind the device even if it is already bound to a region. Default is false.',
+      }),
+    ),
+  }),
   retrieveDeviceReqQuery: t.Object({
     regionId: t.Optional(
       t.String({
@@ -54,7 +55,5 @@ export const devicesModel = new Elysia({ name: 'devices.model' }).model({
   errorRespBody,
 })
 
-export type BindDevicesReqBody = typeof devicesModel.models.bindDevicesReqBody.schema.static
-export type BindDeviceItem = BindDevicesReqBody[number]
 export type CreateDeviceReqBody = typeof devicesModel.models.createDeviceReqBody.schema.static
 export type UpdateDeviceReqBody = typeof devicesModel.models.updateDeviceReqBody.schema.static

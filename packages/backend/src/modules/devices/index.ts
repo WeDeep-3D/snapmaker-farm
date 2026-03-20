@@ -14,7 +14,11 @@ export const devices = new Elysia({
   .get(
     '/',
     async ({ query }) => {
-      return await Devices.getDevices(query.regionId)
+      try {
+        return await Devices.getDevices(query.regionId)
+      } catch (error) {
+        return buildErrorResponse(500, (error as Error).message)
+      }
     },
     {
       query: 'retrieveDeviceReqQuery',
@@ -26,17 +30,18 @@ export const devices = new Elysia({
   )
   .post(
     '/',
-    async ({ body, store }) => {
+    async ({ body, query }) => {
       try {
-        return await Devices.bindDevices(body, store)
+        return await Devices.createDevice(body, query.force)
       } catch (error) {
         return buildErrorResponse(500, (error as Error).message)
       }
     },
     {
-      body: 'bindDevicesReqBody',
+      body: 'createDeviceReqBody',
+      query: 'createDeviceReqQuery',
       response: {
-        200: 'bindDevicesRespBody',
+        200: 'emptyRespBody',
         500: 'errorRespBody',
       },
     },
