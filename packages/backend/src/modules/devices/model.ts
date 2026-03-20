@@ -22,18 +22,10 @@ const deviceRetrieveSchema = t.Composite([
 ])
 const deviceUpdateSchema = t.Omit(deviceCreateSchema, ['model', 'serialNumber'])
 
-const bindDeviceResult = t.Object({
-  ip: t.String({ format: 'ipv4' }),
-  status: t.Union([t.Literal('bound'), t.Literal('already_bound'), t.Literal('error')]),
-  device: t.Optional(deviceSelectSchema),
-  message: t.Optional(t.String()),
-})
-
 export const devicesModel = new Elysia({ name: 'devices.model' }).model({
   fullSingleDeviceRespBody: buildSuccessRespBody(deviceRetrieveSchema),
   fullMultipleDevicesRespBody: buildSuccessRespBody(t.Array(deviceRetrieveSchema)),
   emptyRespBody: buildSuccessRespBody(),
-  bindDevicesRespBody: buildSuccessRespBody(t.Array(bindDeviceResult)),
   createDeviceReqBody: deviceCreateSchema,
   createDeviceReqQuery: t.Object({
     force: t.Optional(

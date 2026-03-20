@@ -42,6 +42,8 @@ export const devices = new Elysia({
       query: 'createDeviceReqQuery',
       response: {
         200: 'emptyRespBody',
+        400: 'errorRespBody',
+        409: 'errorRespBody',
         500: 'errorRespBody',
       },
     },

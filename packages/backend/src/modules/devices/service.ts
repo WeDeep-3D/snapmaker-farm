@@ -38,27 +38,6 @@ export abstract class Devices {
     )
   }
 
-  static async downloadLogs(ip: string) {
-    const api = new HttpApi(ip)
-    const { result: fileList } = await api.listAvailableFiles('logs')
-
-    const files = await Promise.all(
-      fileList.map(async (fileData) => ({
-        name: fileData.path,
-        lastModified: fileData.modified,
-        input: await api.downloadFile('logs', fileData.path),
-      })),
-    )
-
-    return new Response(packToZipStream(files), {
-      headers: {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename="${ip}_logs.zip"`,
-        'Cache-Control': 'no-cache',
-      },
-    })
-  }
-
   static async createDevice(body: CreateDeviceReqBody, force = false) {
     const ip = getAvailableIp(body)
     if (!ip) {
@@ -116,6 +95,25 @@ export abstract class Devices {
       log.error(error, 'Database error while binding device')
       return buildErrorResponse(500, 'Database error while binding device')
     }
+  }
+
+  static async downloadLogs(ip: string) {
+    const api = new HttpApi(ip)
+    const { result: fileList } = await api.listAvailableFiles('logs')
+    const files = await Promise.all(
+      fileList.map(async (fileData) => ({
+        name: fileData.path,
+        lastModified: fileData.modified,
+        input: await api.downloadFile('logs', fileData.path),
+      })),
+    )
+    return new Response(packToZipStream(files), {
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Disposition': `attachment; filename="${ip}_logs.zip"`,
+        'Cache-Control': 'no-cache',
+      },
+    })
   }
 }
 

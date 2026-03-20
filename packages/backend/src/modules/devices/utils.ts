@@ -5,7 +5,7 @@ import { getOrCreateFarmMetadata } from './repository'
 
 let cachedFarmId: string
 
-export const getAvailableIp = (device: Required<CreateDeviceReqBody>) => {
+export const getAvailableIp = (device: CreateDeviceReqBody) => {
   return device.ethIp && isIP(device.ethIp)
     ? device.ethIp
     : device.wlanIp && isIP(device.wlanIp)
