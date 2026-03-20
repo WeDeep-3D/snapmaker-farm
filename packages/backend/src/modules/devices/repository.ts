@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { db } from '@/database'
 import { devices, farmMetadata } from '@/database/schema'
@@ -26,7 +26,7 @@ export const upsertDevice = async (data: CreateDeviceReqBody) => {
           wlanIp: data.wlanIp,
           wlanMac: data.wlanMac,
           ...(data.regionId !== undefined ? { regionId: data.regionId } : {}),
-          updatedAt: sql`now()`,
+          updatedAt: new Date().toISOString(),
         },
       })
       .returning()
