@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance } from 'axios'
 
 import type {
+  DeleteFileResp,
   GetMoonrakerInfoResp,
   GetPrinterInfoResp,
   GetSystemInfoResp,
@@ -40,18 +41,23 @@ export class HttpApi {
     return (await this._api.get<ListRegisteredRootsResp>('/server/files/roots')).data
   }
 
-  async downloadFile(root: string, filename: string): Promise<string> {
-    const response = await this._api.get<string>(`/server/files/${root}/${filename}`, {
-      responseType: 'text',
-    })
-    return response.data
+  async downloadFile(root: string, filename: string) {
+    return (
+      await this._api.get<string>(`/server/files/${root}/${filename}`, {
+        responseType: 'text',
+      })
+    ).data
   }
 
-  async uploadFile(root: string, filename: string, content: string): Promise<void> {
+  async uploadFile(root: string, filename: string, content: string) {
     const formData = new FormData()
     const blob = new Blob([content], { type: 'text/plain' })
     formData.append('file', blob, filename)
     formData.append('root', root)
     await this._api.post('/server/files/upload', formData)
+  }
+
+  async deleteFile(root: string, filename: string) {
+    return (await this._api.delete<DeleteFileResp>(`/server/files/${root}/${filename}`)).data
   }
 }

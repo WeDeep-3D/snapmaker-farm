@@ -8,8 +8,16 @@ export const getAllDevices = async () => {
   return db.select().from(devices)
 }
 
+export const getDeviceById = async (id: string) => {
+  return (await db.select().from(devices).where(eq(devices.id, id)))[0]
+}
+
 export const getDevicesByRegionId = async (regionId: string) => {
   return db.select().from(devices).where(eq(devices.regionId, regionId))
+}
+
+export const deleteDevice = async (id: string) => {
+  return (await db.delete(devices).where(eq(devices.id, id)).returning())[0]
 }
 
 export const upsertDevice = async (data: CreateDeviceReqBody) => {

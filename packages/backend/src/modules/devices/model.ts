@@ -44,6 +44,13 @@ export const devicesModel = new Elysia({ name: 'devices.model' }).model({
     ),
   }),
   updateDeviceReqBody: t.Partial(deviceUpdateSchema),
+  deleteDeviceReqQuery: t.Object({
+    id: t.String({ format: 'uuid', description: 'Device ID to unbind and delete' }),
+  }),
+  downloadDeviceLogsReqQuery: t.Object({
+    id: t.String({ format: 'uuid', description: 'Device ID to download logs for' }),
+  }),
+  downloadDeviceLogsRespBody: t.String({ description: 'Device logs in plain text format' }),
   errorRespBody,
 })
 

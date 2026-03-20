@@ -1,19 +1,21 @@
 import { AxiosError } from 'axios'
 import { Elysia } from 'elysia'
-import { isIP } from 'node:net'
 
 import { HttpApi } from '@/api/snapmaker'
 import { KlippyState } from '@/api/snapmaker/types'
-import type { devices } from '@/database/schema'
 import { log } from '@/log'
 import { buildErrorResponse, buildSuccessResponse } from '@/utils/common'
 import { packToZipStream } from '@/utils/io'
-import { checkTcpPortOpen } from '@/utils/net'
 
 import { BINDING_FILENAME } from './constants'
 import type { CreateDeviceReqBody } from './model'
-import { getAllDevices, getDevicesByRegionId, upsertDevice } from './repository'
-import { SnapmakerDevice } from './snapmaker'
+import {
+  deleteDevice,
+  getAllDevices,
+  getDeviceById,
+  getDevicesByRegionId,
+  upsertDevice,
+} from './repository'
 import { getAvailableIp, getDbFingerprint } from './utils'
 
 export abstract class Devices {
@@ -97,7 +99,62 @@ export abstract class Devices {
     }
   }
 
-  static async downloadLogs(ip: string) {
+  static async removeDevice(id: string) {
+    const device = await getDeviceById(id)
+    if (!device) {
+      return buildErrorResponse(404, `Device with ID ${id} not found`)
+    }
+
+    const ip = getAvailableIp(device)
+    let oldFingerprint: string | null = null
+    if (ip) {
+      const api = new HttpApi(ip)
+      try {
+        oldFingerprint = (await api.downloadFile('config', BINDING_FILENAME)).trim()
+        await api.deleteFile('config', BINDING_FILENAME)
+      } catch (error) {
+        if (
+          error instanceof AxiosError &&
+          (error.response?.status === 400 || error.response?.status === 404)
+        ) {
+          // Binding file already absent, proceed
+        } else {
+          return buildErrorResponse(
+            500,
+            `Failed to delete binding file from device at IP ${ip}: ${(error as Error).message}`,
+          )
+        }
+      }
+    }
+
+    const deleted = await deleteDevice(id)
+    if (!deleted) {
+      // Restore binding file if DB deletion fails
+      if (ip && oldFingerprint) {
+        try {
+          await new HttpApi(ip).uploadFile('config', BINDING_FILENAME, oldFingerprint)
+        } catch (rollbackError) {
+          log.error(
+            rollbackError,
+            `Failed to restore binding file after DB deletion error for device at IP ${ip}`,
+          )
+        }
+      }
+      return buildErrorResponse(500, 'Failed to delete device from database')
+    }
+
+    return buildSuccessResponse()
+  }
+
+  static async downloadLogs(id: string) {
+    const device = await getDeviceById(id)
+    if (!device) {
+      return buildErrorResponse(404, `Device with ID ${id} not found`)
+    }
+    const ip = getAvailableIp(device)
+    if (!ip) {
+      return buildErrorResponse(400, 'No valid IP address found for the device')
+    }
     const api = new HttpApi(ip)
     const { result: fileList } = await api.listAvailableFiles('logs')
     const files = await Promise.all(
@@ -117,36 +174,7 @@ export abstract class Devices {
   }
 }
 
-export const devicesService = new Elysia({ name: 'devices.service' })
-  .state({
-    connectedDevices: new Map<string, SnapmakerDevice>(),
-    disconnectedDevices: new Map<string, typeof devices.$inferSelect>(),
-    unknownDevices: new Map<string, SnapmakerDevice>(),
-  })
-  .onStart(async ({ store }) => {
-    const allDevices = await getAllDevices()
-
-    log.debug({ allDevices }, 'Try connecting to all devices on startup')
-    const results = await Promise.allSettled(
-      allDevices.map(async (device) => {
-        const ip = device.ethIp ?? device.wlanIp
-        if (!ip || !isIP(ip) || !(await checkTcpPortOpen(ip, 7125, 2000))) {
-          store.disconnectedDevices.set(device.id, device)
-          return
-        }
-        try {
-          if ((await new HttpApi(ip).getPrinterInfo()).result?.state === KlippyState.ready) {
-            store.connectedDevices.set(device.id, new SnapmakerDevice(ip, device))
-          } else {
-            store.unknownDevices.set(device.id, new SnapmakerDevice(ip, device))
-          }
-        } catch {
-          store.unknownDevices.set(device.id, new SnapmakerDevice(ip, device))
-        }
-      }),
-    )
-    log.info(
-      { failedConnections: results.filter((r) => r.status === 'rejected') },
-      'Device connections on startup completed',
-    )
-  })
+export const devicesService = new Elysia({ name: 'devices.service' }).onStart(async () => {
+  const allDevices = await getAllDevices()
+  log.debug({ allDevices }, 'Try connecting to all devices on startup')
+})

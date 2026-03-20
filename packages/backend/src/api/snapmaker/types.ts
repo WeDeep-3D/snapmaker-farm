@@ -131,13 +131,15 @@ export interface GetSystemInfoResp {
   }
 }
 
+interface BaseFileInfo {
+  path: string
+  modified: number
+  size: number
+  permissions: string
+}
+
 export interface ListAvailableFilesResp {
-  result: {
-    path: string
-    modified: number
-    size: number
-    permissions: string
-  }[]
+  result: BaseFileInfo[]
 }
 
 export interface ListRegisteredRootsResp {
@@ -146,4 +148,13 @@ export interface ListRegisteredRootsResp {
     path: string
     permissions: string
   }[]
+}
+
+export interface DeleteFileResp {
+  result: {
+    item: BaseFileInfo & {
+      root: string
+    }
+    action: 'delete_file'
+  }
 }

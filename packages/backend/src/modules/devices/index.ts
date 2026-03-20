@@ -48,10 +48,40 @@ export const devices = new Elysia({
       },
     },
   )
-  .get('/:ip/logs', async ({ params }) => {
-    try {
-      return await Devices.downloadLogs(params.ip)
-    } catch (error) {
-      return buildErrorResponse(500, (error as Error).message)
-    }
-  })
+  .delete(
+    '/:id',
+    async ({ params }) => {
+      try {
+        return await Devices.removeDevice(params.id)
+      } catch (error) {
+        return buildErrorResponse(500, (error as Error).message)
+      }
+    },
+    {
+      params: 'deleteDeviceReqQuery',
+      response: {
+        200: 'emptyRespBody',
+        404: 'errorRespBody',
+        500: 'errorRespBody',
+      },
+    },
+  )
+  .get(
+    '/:id/logs',
+    async ({ params }) => {
+      try {
+        return await Devices.downloadLogs(params.id)
+      } catch (error) {
+        return buildErrorResponse(500, (error as Error).message)
+      }
+    },
+    {
+      params: 'downloadDeviceLogsReqQuery',
+      response: {
+        200: 'downloadDeviceLogsRespBody',
+        400: 'errorRespBody',
+        404: 'errorRespBody',
+        500: 'errorRespBody',
+      },
+    },
+  )
