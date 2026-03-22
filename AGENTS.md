@@ -40,7 +40,11 @@ snapmaker-farm/
 The root `package.json` uses Bun workspaces:
 
 ```json
-"workspaces": ["packages/*"]
+{
+  "workspaces": [
+    "packages/*"
+  ]
+}
 ```
 
 There is no Turbo or pnpm workspace configuration in this repository.
@@ -676,7 +680,7 @@ Do not assume the frontend fully covers all backend capabilities.
 Inspect backend modules first when adding project- or plate-related UI features.
 
 ### 5. Frontend Types Often Come From Eden/Treaty Inference
-Many frontend types are derived from backend route definitions instead of being maintained as independent hand-written domain models.
+Many frontend types are derived from backend route definitions instead of being maintained as independent handwritten domain models.
 Check composable `types.ts` files and `boot/eden.ts` before creating duplicate interfaces.
 
 ### 6. Named Views Matter in the Frontend Layout
