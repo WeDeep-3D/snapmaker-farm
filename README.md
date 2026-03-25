@@ -121,7 +121,6 @@ bun build --compile src/index.ts --outfile snapmaker-farm-backend
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `DATABASE_URL` | Yes | - | PostgreSQL connection string |
-| `BACKEND_ID` | No | hostname | Unique identifier for this backend instance |
 | `HTTP_BASE_URL` | No | - | Base URL for frontend API requests |
 
 ## Available Scripts

@@ -572,8 +572,6 @@ The backend expects at least:
 DATABASE_URL=postgresql://app:app@localhost:5432/app
 ```
 
-A `BACKEND_ID` value may also be present.
-
 Relevant file:
 - `packages/backend/.env`
 
