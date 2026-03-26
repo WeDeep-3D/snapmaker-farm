@@ -4,8 +4,8 @@ import { onMounted, ref } from 'vue';
 
 import AddRegionDialog from 'components/devices/AddRegionDialog.vue';
 
-import { useRegionsApi } from 'src/composables/devices/regionsApi';
-import type { Region } from 'src/composables/devices/regionsApi/types';
+import { useRegionsApi } from 'src/composables/api/regionsApi';
+import type { Region } from 'src/composables/api/regionsApi/types';
 
 import { i18nSubPath } from 'src/utils/common';
 

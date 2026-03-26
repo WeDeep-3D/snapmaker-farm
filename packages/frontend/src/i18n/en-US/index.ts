@@ -44,6 +44,11 @@ export default {
             wireless: 'Wireless',
             unknown: 'Unknown',
           },
+          bindingStatus: {
+            unbound: 'Unbound',
+            bound_self: 'Bound',
+            bound_other: 'Bound to Other',
+          },
           deviceName: 'Name:',
           serialNumber: 'S/N: ',
           macAddress: 'MAC Address: {mac}',
@@ -62,6 +67,11 @@ export default {
             wired: 'Wired',
             wireless: 'Wireless',
             unknown: 'Unknown',
+          },
+          bindingStatus: {
+            unbound: 'Unbound',
+            bound_self: 'Bound',
+            bound_other: 'Bound to Other',
           },
           selectUnselectAll: 'Select/Unselect All',
           selectWired: 'Select Wired',
@@ -89,7 +99,7 @@ export default {
     },
   },
   composables: {
-    devices: {
+    api: {
       regionsApi: {
         notifications: {
           createRegionError: 'Error creating region',
@@ -125,6 +135,13 @@ export default {
           requestScanFailed: 'Failed to request scan',
           requestScanInProgress: 'A scan request is already in progress',
           requestScanSuccess: 'Scan requested successfully',
+          unknownError: 'An unknown error occurred',
+        },
+      },
+      farmsApi: {
+        notifications: {
+          getFarmError: 'Error getting farm info',
+          getFarmFailed: 'Failed to get farm info',
           unknownError: 'An unknown error occurred',
         },
       },

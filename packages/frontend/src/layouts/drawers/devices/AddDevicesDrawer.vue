@@ -5,11 +5,11 @@ import ScanRangesPanel from 'components/devices/ScanRangesPanel.vue';
 import ScanRegionPanel from 'components/devices/ScanRegionPanel.vue';
 import ScanResultPanel from 'components/devices/ScanResultPanel.vue';
 
-import { useDevicesApi } from 'src/composables/devices/devicesApi';
-import type { Region } from 'src/composables/devices/regionsApi/types';
-import { useScansApi } from 'src/composables/devices/scansApi';
-import { MAX_IP_COUNT } from 'src/composables/devices/scansApi/constants';
-import type { DeviceInfo } from 'src/composables/devices/scansApi/types';
+import { useDevicesApi } from 'src/composables/api/devicesApi';
+import type { Region } from 'src/composables/api/regionsApi/types';
+import { useScansApi } from 'src/composables/api/scansApi';
+import { MAX_IP_COUNT } from 'src/composables/api/scansApi/constants';
+import type { DeviceInfo } from 'src/composables/api/scansApi/types';
 
 import { bus } from 'boot/bus';
 import { i18nSubPath } from 'src/utils/common';

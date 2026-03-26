@@ -4,7 +4,7 @@ import { app } from 'boot/eden';
 import { i18nSubPath } from 'src/utils/common';
 
 export const useRegionsApi = () => {
-  const i18n = i18nSubPath('composables.devices.regionsApi');
+  const i18n = i18nSubPath('composables.api.regionsApi');
 
   const createRegion = async (name: string, description: string | null = null) => {
     try {

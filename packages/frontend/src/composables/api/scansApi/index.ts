@@ -12,7 +12,7 @@ import type { ScanDetail } from './types';
 
 export const useScansApi = () => {
   const { ipRanges } = storeToRefs(useScansStore());
-  const i18n = i18nSubPath('composables.devices.scansApi');
+  const i18n = i18nSubPath('composables.api.scansApi');
 
   const scanDetail = ref<ScanDetail>();
   const scanId = ref<string>();

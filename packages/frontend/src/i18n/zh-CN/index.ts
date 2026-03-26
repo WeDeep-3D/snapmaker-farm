@@ -43,6 +43,11 @@ export default {
             wireless: '无线',
             unknown: '未知',
           },
+          bindingStatus: {
+            unbound: '未绑定',
+            bound_self: '已绑定',
+            bound_other: '已被其他系统绑定',
+          },
           deviceName: '名称：',
           serialNumber: '序列号：',
           macAddress: 'MAC 地址：{mac}',
@@ -61,6 +66,11 @@ export default {
             wired: '有线',
             wireless: '无线',
             unknown: '未知',
+          },
+          bindingStatus: {
+            unbound: '未绑定',
+            bound_self: '已绑定',
+            bound_other: '已被其他系统绑定',
           },
           selectUnselectAll: '全选/反选',
           selectWired: '选择有线设备',
@@ -88,7 +98,7 @@ export default {
     },
   },
   composables: {
-    devices: {
+    api: {
       regionsApi: {
         notifications: {
           createRegionError: '创建区域时发生错误',
@@ -124,6 +134,13 @@ export default {
           requestScanFailed: '发起扫描失败',
           requestScanInProgress: '扫描请求正在进行中',
           requestScanSuccess: '发起扫描成功',
+          unknownError: '发生未知错误',
+        },
+      },
+      farmsApi: {
+        notifications: {
+          getFarmError: '获取农场信息时发生错误',
+          getFarmFailed: '获取农场信息失败',
           unknownError: '发生未知错误',
         },
       },

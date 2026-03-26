@@ -3,7 +3,7 @@ import { useDialogPluginComponent } from 'quasar';
 import { ref } from 'vue';
 
 import { i18nSubPath } from 'src/utils/common';
-import { useRegionsApi } from 'src/composables/devices/regionsApi';
+import { useRegionsApi } from 'src/composables/api/regionsApi';
 
 defineEmits<{
   ok: [];

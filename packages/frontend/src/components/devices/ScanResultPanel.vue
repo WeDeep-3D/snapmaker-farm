@@ -2,8 +2,8 @@
 import { LocalScope } from '@all1ndev/vue-local-scope';
 import { computed } from 'vue';
 
-import { POLL_INTERVAL_MS } from 'src/composables/devices/scansApi/constants';
-import type { DeviceInfo, ScanDetail } from 'src/composables/devices/scansApi/types';
+import { POLL_INTERVAL_MS } from 'src/composables/api/scansApi/constants';
+import type { DeviceInfo, ScanDetail } from 'src/composables/api/scansApi/types';
 
 import { i18nSubPath } from 'src/utils/common';
 
@@ -23,6 +23,12 @@ const networkTypeColor = {
   wired: 'primary',
   wireless: 'accent',
   unknown: 'grey',
+};
+
+const bindingStatusColor: Record<string, string> = {
+  unbound: 'grey',
+  bound_self: 'positive',
+  bound_other: 'warning',
 };
 
 const computedDeviceInfos = computed(() => {
@@ -146,6 +152,19 @@ const selectWireless = () => {
               </q-item-label>
               <q-item-label v-if="preferredNetwork" caption>
                 {{ preferredNetwork.ip }}
+              </q-item-label>
+              <q-item-label class="row q-gutter-x-xs q-mt-xs">
+                <q-badge
+                  :color="bindingStatusColor[deviceInfo.bindingStatus]"
+                  :label="i18n(`labels.bindingStatus.${deviceInfo.bindingStatus}`)"
+                  text-color="white"
+                />
+                <q-badge
+                  v-if="deviceInfo.region"
+                  color="info"
+                  :label="deviceInfo.region"
+                  text-color="white"
+                />
               </q-item-label>
             </q-item-section>
             <q-item-section v-if="preferredNetwork" side top>

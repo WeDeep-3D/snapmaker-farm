@@ -6,7 +6,7 @@ import { i18nSubPath } from 'src/utils/common';
 import type { CreateDeviceBody } from './types';
 
 export const useDevicesApi = () => {
-  const i18n = i18nSubPath('composables.devices.devicesApi');
+  const i18n = i18nSubPath('composables.api.devicesApi');
 
   const getDevices = async (regionId?: string) => {
     try {

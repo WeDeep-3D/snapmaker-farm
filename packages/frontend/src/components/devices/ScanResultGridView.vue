@@ -19,6 +19,12 @@ const { notify } = useQuasar();
 
 const isDownloading = ref(false);
 
+const bindingStatusColor: Record<string, string> = {
+  unbound: 'grey',
+  bound_self: 'positive',
+  bound_other: 'warning',
+};
+
 const computedDeviceInfos = computed(() => {
   return props.modelValue.toSorted((a, b) => a.name.localeCompare(b.name));
 });
@@ -87,6 +93,19 @@ const downloadLog = (deviceInfo: ScanDetail['recognized'][0]) => {
               :label="deviceInfo.serialNumber"
               square
               @click="copySerialNumber(deviceInfo.serialNumber)"
+            />
+          </div>
+          <div class="row items-center q-gutter-x-sm q-mt-xs">
+            <q-badge
+              :color="bindingStatusColor[deviceInfo.bindingStatus]"
+              :label="i18n(`labels.bindingStatus.${deviceInfo.bindingStatus}`)"
+              text-color="white"
+            />
+            <q-badge
+              v-if="deviceInfo.region"
+              color="info"
+              :label="deviceInfo.region"
+              text-color="white"
             />
           </div>
         </q-card-section>
