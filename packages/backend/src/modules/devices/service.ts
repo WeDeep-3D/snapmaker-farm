@@ -72,6 +72,16 @@ export abstract class Devices {
       try {
         await api.uploadFile('config', BINDING_FILENAME, fingerprint)
       } catch (error) {
+        if (error instanceof AxiosError) {
+          log.error(
+            {
+              status: error.response?.status,
+              data: error.response?.data,
+              headers: error.response?.headers,
+            },
+            `Failed to upload binding file to device at IP ${ip}`,
+          )
+        }
         return buildErrorResponse(500, `Failed to upload binding file: ${(error as Error).message}`)
       }
     }
@@ -164,12 +174,10 @@ export abstract class Devices {
         input: await api.downloadFile('logs', fileData.path),
       })),
     )
-    return new Response(packToZipStream(files), {
-      headers: {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename="${ip}_logs.zip"`,
-        'Cache-Control': 'no-cache',
-      },
+    const zipBuffer = Buffer.from(await new Response(packToZipStream(files)).arrayBuffer())
+    return buildSuccessResponse({
+      filename: `${ip}_logs.zip`,
+      content: zipBuffer.toString('base64'),
     })
   }
 }

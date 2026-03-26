@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 
 import { db } from '@/database'
-import { devices, farmMetadata } from '@/database/schema'
+import { devices } from '@/database/schema'
 import type { CreateDeviceReqBody } from '@/modules/devices/model'
 
 export const getAllDevices = async () => {
@@ -39,17 +39,4 @@ export const upsertDevice = async (data: CreateDeviceReqBody) => {
       })
       .returning()
   )[0]
-}
-
-export const getOrCreateFarmMetadata = async () => {
-  const existing = await db.select().from(farmMetadata).limit(1)
-  if (existing[0]) {
-    return existing[0].id
-  }
-
-  const inserted = (await db.insert(farmMetadata).values({}).returning())[0]
-  if (!inserted) {
-    throw new Error('Failed to initialize farm metadata')
-  }
-  return inserted.id
 }

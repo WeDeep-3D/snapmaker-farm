@@ -99,6 +99,22 @@ export default {
           unknownError: '发生未知错误',
         },
       },
+      devicesApi: {
+        notifications: {
+          getDevicesError: '获取设备时发生错误',
+          getDevicesFailed: '获取设备失败',
+          createDeviceError: '创建设备时发生错误',
+          createDeviceFailed: '创建设备失败',
+          createDeviceSuccess: '创建设备成功',
+          removeDeviceError: '移除设备时发生错误',
+          removeDeviceFailed: '移除设备失败',
+          removeDeviceSuccess: '移除设备成功',
+          downloadDeviceLogsError: '下载设备日志时发生错误',
+          downloadDeviceLogsFailed: '下载设备日志失败',
+          downloadDeviceLogsSuccess: '设备日志下载成功',
+          unknownError: '发生未知错误',
+        },
+      },
       scansApi: {
         notifications: {
           getScanDetailError: '获取扫描详情时发生错误',

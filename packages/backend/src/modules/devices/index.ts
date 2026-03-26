@@ -78,6 +78,7 @@ export const devices = new Elysia({
     {
       params: 'downloadDeviceLogsReqQuery',
       response: {
+        200: 'downloadDeviceLogsRespBody',
         400: 'errorRespBody',
         404: 'errorRespBody',
         500: 'errorRespBody',

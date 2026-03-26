@@ -11,7 +11,7 @@ export default {
           regionDescription: 'Region Description (Optional)',
           confirm: 'Confirm',
           cancel: 'Cancel',
-        }
+        },
       },
       IpInput: {
         labels: {
@@ -97,6 +97,22 @@ export default {
           createRegionSuccess: 'Region created successfully',
           getRegionsError: 'Error getting regions',
           getRegionsFailed: 'Failed to get regions',
+          unknownError: 'An unknown error occurred',
+        },
+      },
+      devicesApi: {
+        notifications: {
+          getDevicesError: 'Error getting devices',
+          getDevicesFailed: 'Failed to get devices',
+          createDeviceError: 'Error creating device',
+          createDeviceFailed: 'Failed to create device',
+          createDeviceSuccess: 'Device created successfully',
+          removeDeviceError: 'Error removing device',
+          removeDeviceFailed: 'Failed to remove device',
+          removeDeviceSuccess: 'Device removed successfully',
+          downloadDeviceLogsError: 'An error occurred while downloading device logs',
+          downloadDeviceLogsFailed: 'Failed to download device logs',
+          downloadDeviceLogsSuccess: 'Device logs downloaded successfully',
           unknownError: 'An unknown error occurred',
         },
       },

@@ -5,6 +5,7 @@ import ScanRangesPanel from 'components/devices/ScanRangesPanel.vue';
 import ScanRegionPanel from 'components/devices/ScanRegionPanel.vue';
 import ScanResultPanel from 'components/devices/ScanResultPanel.vue';
 
+import { useDevicesApi } from 'src/composables/devices/devicesApi';
 import type { Region } from 'src/composables/devices/regionsApi/types';
 import { useScansApi } from 'src/composables/devices/scansApi';
 import { MAX_IP_COUNT } from 'src/composables/devices/scansApi/constants';
@@ -15,6 +16,7 @@ import { i18nSubPath } from 'src/utils/common';
 
 const i18n = i18nSubPath('layouts.drawers.devices.AddDevicesDrawer');
 
+const { createDevice } = useDevicesApi();
 const { scanDetail, totalCount, scanProgress, scanBuffer, isScanning, requestScan, stopPolling } =
   useScansApi();
 
@@ -34,8 +36,46 @@ const continueToScan = async () => {
   await requestScan();
 };
 
-const bindDevices = () => {
+const bindDevices = async () => {
   console.log({ region: region.value, needBindingDeviceInfos: needBindingDeviceInfos.value });
+  const result = await Promise.all(
+    Array.from(needBindingDeviceInfos.value).map(async ([serialNumber, deviceInfo]) => {
+      const ethNetwork = deviceInfo.network.find((item) => item.type === 'wired' && item.ip);
+      const wlanNetwork = deviceInfo.network.find((item) => item.type === 'wireless' && item.ip);
+      if (!ethNetwork && !wlanNetwork) {
+        return {
+          serialNumber,
+          success: false,
+        };
+      }
+      if (
+        await createDevice(
+          {
+            description: null,
+            model: 'Snapmaker:U1',
+            serialNumber: deviceInfo.serialNumber,
+            ethIp: ethNetwork?.ip ?? null,
+            ethMac: ethNetwork?.mac ?? null,
+            wlanIp: wlanNetwork?.ip ?? null,
+            wlanMac: wlanNetwork?.mac ?? null,
+            regionId: region.value?.id ?? null,
+            projectId: null,
+            plateId: null,
+          }
+        )
+      ) {
+        return {
+          serialNumber,
+          success: true,
+        };
+      }
+      return {
+        serialNumber,
+        success: false,
+      };
+    }),
+  );
+  console.log(result);
 };
 </script>
 
@@ -74,6 +114,7 @@ const bindDevices = () => {
             color="primary"
             :label="i18n('labels.back')"
             class="q-ml-sm"
+            no-caps
             @click="step -= 1"
           />
         </q-stepper-navigation>

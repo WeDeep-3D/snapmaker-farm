@@ -50,7 +50,12 @@ export const devicesModel = new Elysia({ name: 'devices.model' }).model({
   downloadDeviceLogsReqQuery: t.Object({
     id: t.String({ format: 'uuid', description: 'Device ID to download logs for' }),
   }),
-  downloadDeviceLogsRespBody: t.String({ description: 'Device logs in plain text format' }),
+  downloadDeviceLogsRespBody: buildSuccessRespBody(
+    t.Object({
+      filename: t.String({ description: 'Suggested filename for the downloaded archive' }),
+      content: t.String({ description: 'Base64-encoded ZIP archive of device logs' }),
+    }),
+  ),
   errorRespBody,
 })
 

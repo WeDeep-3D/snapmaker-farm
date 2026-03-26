@@ -1,7 +1,8 @@
 import { isIP } from 'node:net'
 
+import { getOrCreateFarm } from '@/modules/farms/repository'
+
 import type { CreateDeviceReqBody } from './model'
-import { getOrCreateFarmMetadata } from './repository'
 
 let cachedFarmId: string
 
@@ -17,6 +18,6 @@ export const getDbFingerprint = async (): Promise<string> => {
   if (cachedFarmId) {
     return cachedFarmId
   }
-  cachedFarmId = await getOrCreateFarmMetadata()
+  cachedFarmId = (await getOrCreateFarm()).id
   return cachedFarmId
 }
