@@ -2,6 +2,8 @@ import { log } from '@/log'
 import { generateSequence } from '@/utils/common'
 
 import type { GetSystemInfoResp } from '@/api/snapmaker/types'
+import { getDeviceByIdentity } from '@/modules/devices/repository'
+import { getRegionById } from '@/modules/regions/repository'
 import type {
   GetAllScansRespBody,
   GetScanRespBody,
@@ -228,6 +230,21 @@ export class ScansHelper {
                   type: networkType,
                 })
               } else {
+                let region: string | undefined
+                try {
+                  const dbDevice = await getDeviceByIdentity(
+                    systemInfo.product_info.machine_type,
+                    systemInfo.product_info.serial_number,
+                  )
+                  if (dbDevice?.regionId) {
+                    region = (await getRegionById(dbDevice.regionId))?.name
+                  }
+                } catch (error) {
+                  log.warn(
+                    error,
+                    `Failed to look up region for device ${systemInfo.product_info.serial_number}`,
+                  )
+                }
                 task.recognized.push({
                   model: systemInfo.product_info.machine_type,
                   name: systemInfo.product_info.device_name,
@@ -238,6 +255,7 @@ export class ScansHelper {
                       type: networkType,
                     },
                   ],
+                  ...(region ? { region } : {}),
                   serialNumber: systemInfo.product_info.serial_number,
                   version: systemInfo.product_info.software_version,
                 })

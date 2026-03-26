@@ -12,6 +12,7 @@ const recognizedDeviceInfoModel = t.Object({
       type: t.Union([t.Literal('wired'), t.Literal('wireless'), t.Literal('unknown')]),
     }),
   ),
+  region: t.Optional(t.String()),
   serialNumber: t.String(),
   version: t.String(),
 })

@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/database'
-import { devices } from '@/database/schema'
+import { deviceModel, devices } from '@/database/schema'
 import type { CreateDeviceReqBody } from '@/modules/devices/model'
 
 export const getAllDevices = async () => {
@@ -14,6 +14,23 @@ export const getDeviceById = async (id: string) => {
 
 export const getDevicesByRegionId = async (regionId: string) => {
   return db.select().from(devices).where(eq(devices.regionId, regionId))
+}
+
+export const getDeviceByIdentity = async (model: string, serialNumber: string) => {
+  if (!(deviceModel.enumValues as readonly string[]).includes(model)) {
+    return undefined
+  }
+  return (
+    await db
+      .select()
+      .from(devices)
+      .where(
+        and(
+          eq(devices.model, model as (typeof deviceModel.enumValues)[number]),
+          eq(devices.serialNumber, serialNumber),
+        ),
+      )
+  )[0]
 }
 
 export const deleteDevice = async (id: string) => {
