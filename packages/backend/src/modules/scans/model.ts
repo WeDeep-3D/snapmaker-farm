@@ -2,7 +2,14 @@ import { Elysia, t } from 'elysia'
 
 import { buildSuccessRespBody, errorRespBody } from '@/utils/model'
 
+const bindingStatusModel = t.Union([
+  t.Literal('unbound'),
+  t.Literal('bound_self'),
+  t.Literal('bound_other'),
+])
+
 const recognizedDeviceInfoModel = t.Object({
+  bindingStatus: bindingStatusModel,
   model: t.String(),
   name: t.String(),
   network: t.Array(

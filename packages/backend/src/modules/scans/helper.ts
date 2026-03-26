@@ -3,6 +3,7 @@ import { generateSequence } from '@/utils/common'
 
 import type { GetSystemInfoResp } from '@/api/snapmaker/types'
 import { getDeviceByIdentity } from '@/modules/devices/repository'
+import { checkBindingStatus } from '@/modules/devices/utils'
 import { getRegionById } from '@/modules/regions/repository'
 import type {
   GetAllScansRespBody,
@@ -231,21 +232,41 @@ export class ScansHelper {
                 })
               } else {
                 let region: string | undefined
-                try {
-                  const dbDevice = await getDeviceByIdentity(
-                    systemInfo.product_info.machine_type,
-                    systemInfo.product_info.serial_number,
-                  )
-                  if (dbDevice?.regionId) {
-                    region = (await getRegionById(dbDevice.regionId))?.name
+                let bindingStatus: RecognizedDeviceInfo['bindingStatus'] = 'unbound'
+
+                const regionLookup = (async () => {
+                  try {
+                    const dbDevice = await getDeviceByIdentity(
+                      systemInfo.product_info.machine_type,
+                      systemInfo.product_info.serial_number,
+                    )
+                    if (dbDevice?.regionId) {
+                      region = (await getRegionById(dbDevice.regionId))?.name
+                    }
+                  } catch (error) {
+                    log.warn(
+                      error,
+                      `Failed to look up region for device ${systemInfo.product_info.serial_number}`,
+                    )
                   }
-                } catch (error) {
-                  log.warn(
-                    error,
-                    `Failed to look up region for device ${systemInfo.product_info.serial_number}`,
-                  )
-                }
+                })()
+
+                const bindingCheck = (async () => {
+                  try {
+                    const result = await checkBindingStatus(ip)
+                    bindingStatus = result.status
+                  } catch (error) {
+                    log.warn(
+                      error,
+                      `Failed to check binding status for device ${systemInfo.product_info.serial_number} at ${ip}`,
+                    )
+                  }
+                })()
+
+                await Promise.all([regionLookup, bindingCheck])
+
                 task.recognized.push({
+                  bindingStatus,
                   model: systemInfo.product_info.machine_type,
                   name: systemInfo.product_info.device_name,
                   network: [

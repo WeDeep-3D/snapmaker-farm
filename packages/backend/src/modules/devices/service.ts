@@ -16,7 +16,7 @@ import {
   getDevicesByRegionId,
   upsertDevice,
 } from './repository'
-import { getAvailableIp, getDbFingerprint } from './utils'
+import { checkBindingStatus, getAvailableIp, getDbFingerprint } from './utils'
 
 export abstract class Devices {
   static async getDevices(regionId?: string) {
@@ -46,31 +46,27 @@ export abstract class Devices {
       return buildErrorResponse(400, 'No valid IP address provided in ethIp or wlanIp')
     }
     const api = new HttpApi(ip)
-    const fingerprint = await getDbFingerprint()
 
     let existingFingerprint: string | null = null
     let needsUpload = true
     try {
-      existingFingerprint = (await api.downloadFile('config', BINDING_FILENAME)).trim()
-      if (existingFingerprint === fingerprint) {
+      const bindingResult = await checkBindingStatus(ip)
+      existingFingerprint = bindingResult.fingerprint
+      if (bindingResult.status === 'bound_self') {
         needsUpload = false
-      } else if (!force) {
+      } else if (bindingResult.status === 'bound_other' && !force) {
         return buildErrorResponse(
           409,
           `Device at IP ${ip} is already bound to another backend (fingerprint: ${existingFingerprint})`,
         )
       }
     } catch (error) {
-      if (error instanceof AxiosError && error.response?.status === 404) {
-        // File doesn't exist, will create it below
-      } else {
-        return buildErrorResponse(500, `Failed to check binding file: ${(error as Error).message}`)
-      }
+      return buildErrorResponse(500, `Failed to check binding file: ${(error as Error).message}`)
     }
 
     if (needsUpload) {
       try {
-        await api.uploadFile('config', BINDING_FILENAME, fingerprint)
+        await api.uploadFile('config', BINDING_FILENAME, await getDbFingerprint())
       } catch (error) {
         if (error instanceof AxiosError) {
           log.error(
