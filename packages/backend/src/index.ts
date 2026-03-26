@@ -39,7 +39,7 @@ const app = new Elysia()
         },
       },
       exclude: {
-        paths: [`${staticFilesPrefix}/*`],
+        paths: [staticFilesPrefix, `${staticFilesPrefix}/*`],
       },
       references: fromTypes(
         process.env.NODE_ENV === 'production' ? 'dist/index.d.ts' : 'src/index.ts',
