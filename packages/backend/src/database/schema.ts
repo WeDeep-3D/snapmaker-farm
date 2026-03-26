@@ -17,7 +17,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-export const farmMetadata = pgTable('farm_metadata', {
+export const farms = pgTable('farms', {
   id: uuid()
     .default(sql`uuidv7()`)
     .primaryKey()

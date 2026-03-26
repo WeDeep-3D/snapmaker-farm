@@ -8,6 +8,7 @@ import { resolve } from 'node:path'
 import packageJson from 'package.json'
 import { log } from '@/log'
 import { devices } from '@/modules/devices'
+import { farms } from '@/modules/farms'
 import { plates } from '@/modules/plates'
 import { projects } from '@/modules/projects'
 import { regions } from '@/modules/regions'
@@ -65,6 +66,7 @@ const app = new Elysia()
   .get(`${staticFilesPrefix}/index.html`, () => new Response(Bun.file(indexHtmlPath)))
   .get(staticFilesPrefix, () => new Response(Bun.file(indexHtmlPath)))
   .use(cors())
+  .use(farms)
   .use(regions)
   .use(devices)
   .use(plates)
