@@ -51,10 +51,12 @@ export class HttpApi {
 
   async uploadFile(root: string, filename: string, content: string) {
     const formData = new FormData()
-    const blob = new Blob([content], { type: 'text/plain' })
-    formData.append('file', blob, filename)
+    const file = new File([content], filename, { type: 'application/octet-stream' })
+    formData.append('file', file)
     formData.append('root', root)
-    await this._api.post('/server/files/upload', formData)
+    await this._api.post('/server/files/upload', formData, {
+      headers: { 'Content-Type': null },
+    })
   }
 
   async deleteFile(root: string, filename: string) {
