@@ -3,7 +3,7 @@ import { isIP } from 'node:net'
 import { AxiosError } from 'axios'
 
 import { HttpApi } from '@/api/snapmaker'
-import { getOrCreateFarm } from '@/modules/farms/repository'
+import { getOrCreateFarm } from '@/modules/farms/exports'
 
 import { BINDING_FILENAME } from './constants'
 import type { CreateDeviceReqBody } from './model'

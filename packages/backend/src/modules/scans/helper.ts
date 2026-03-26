@@ -2,9 +2,8 @@ import { log } from '@/log'
 import { generateSequence } from '@/utils/common'
 
 import type { GetSystemInfoResp } from '@/api/snapmaker/types'
-import { getDeviceByIdentity } from '@/modules/devices/repository'
-import { checkBindingStatus } from '@/modules/devices/utils'
-import { getRegionById } from '@/modules/regions/repository'
+import { checkBindingStatus, getDeviceByIdentity } from '@/modules/devices/exports'
+import { getRegionById } from '@/modules/regions/exports'
 import type {
   GetAllScansRespBody,
   GetScanRespBody,
