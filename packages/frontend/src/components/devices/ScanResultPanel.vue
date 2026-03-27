@@ -57,6 +57,7 @@ const selectWireless = () => {
   computedDeviceInfos.value?.forEach((deviceInfo) => {
     if (deviceInfo.network.find((item) => item.type === 'wireless' && item.ip)) {
       modelValue.value.set(deviceInfo.serialNumber, deviceInfo);
+      console.log(deviceInfo);
     }
   });
 };
@@ -133,7 +134,7 @@ const selectWireless = () => {
             "
             #default="{ preferredNetwork }"
           >
-            <q-item-section side>
+            <q-item-section v-if="preferredNetwork" side>
               <q-checkbox
                 :model-value="modelValue.has(deviceInfo.serialNumber)"
                 @click="
@@ -150,29 +151,29 @@ const selectWireless = () => {
                 </div>
                 <q-chip class="text-caption" dense :label="deviceInfo.version" />
               </q-item-label>
-              <q-item-label v-if="preferredNetwork" caption>
-                {{ preferredNetwork.ip }}
-              </q-item-label>
-              <q-item-label class="row q-gutter-x-xs q-mt-xs">
-                <q-badge
-                  :color="bindingStatusColor[deviceInfo.bindingStatus]"
-                  :label="i18n(`labels.bindingStatus.${deviceInfo.bindingStatus}`)"
-                  text-color="white"
-                />
-                <q-badge
-                  v-if="deviceInfo.region"
-                  color="info"
-                  :label="deviceInfo.region"
+              <q-item-label v-if="preferredNetwork" class="row items-center q-gutter-x-sm" caption>
+                <div>
+                  {{ preferredNetwork.ip }}
+                </div>
+                <q-chip
+                  class="text-caption"
+                  :color="networkTypeColor[preferredNetwork.type]"
+                  dense
+                  :label="i18n(`labels.networkType.${preferredNetwork.type ?? 'unknown'}`)"
                   text-color="white"
                 />
               </q-item-label>
             </q-item-section>
-            <q-item-section v-if="preferredNetwork" side top>
-              <q-chip
-                class="text-caption"
-                :color="networkTypeColor[preferredNetwork.type]"
-                dense
-                :label="i18n(`labels.networkType.${preferredNetwork.type ?? 'unknown'}`)"
+            <q-item-section class="q-gutter-y-sm" side>
+              <q-badge
+                :color="bindingStatusColor[deviceInfo.bindingStatus]"
+                :label="i18n(`labels.bindingStatus.${deviceInfo.bindingStatus}`)"
+                text-color="white"
+              />
+              <q-badge
+                v-if="deviceInfo.region"
+                color="primary"
+                :label="deviceInfo.region"
                 text-color="white"
               />
             </q-item-section>
