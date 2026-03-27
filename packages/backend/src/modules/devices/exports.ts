@@ -4,6 +4,7 @@
  * Other modules should import from this file instead of
  * reaching into internal files like repository.ts or utils.ts directly.
  */
+export { resolveDeviceModel } from './constants'
 export { getDeviceByIdentity } from './repository'
 export { checkBindingStatus } from './utils'
 export type { BindingCheckResult, BindingStatus } from './utils'

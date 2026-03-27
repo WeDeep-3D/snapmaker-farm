@@ -2,7 +2,7 @@ import { log } from '@/log'
 import { generateSequence } from '@/utils/common'
 
 import type { GetSystemInfoResp } from '@/api/snapmaker/types'
-import { checkBindingStatus, getDeviceByIdentity } from '@/modules/devices/exports'
+import { checkBindingStatus, getDeviceByIdentity, resolveDeviceModel } from '@/modules/devices/exports'
 import { getRegionById } from '@/modules/regions/exports'
 import type {
   GetAllScansRespBody,
@@ -194,7 +194,7 @@ export class ScansHelper {
           const systemInfo = await getSystemInfo(ip, this._timeout)
           const task = this._tasks.get(taskId)
           if (task) {
-            if (systemInfo) {
+            if (systemInfo?.product_info) {
               const networkInterface = Object.entries(systemInfo.network).find(
                 ([_, interfaceInfo]) => {
                   return interfaceInfo.ip_addresses.some((address) => address.address === ip)
@@ -235,8 +235,17 @@ export class ScansHelper {
 
                 const regionLookup = (async () => {
                   try {
-                    const dbDevice = await getDeviceByIdentity(
+                    const resolvedModel = resolveDeviceModel(
                       systemInfo.product_info.machine_type,
+                    )
+                    if (!resolvedModel) {
+                      log.warn(
+                        `Unknown machine_type '${systemInfo.product_info.machine_type}' for device ${systemInfo.product_info.serial_number}, skipping region lookup`,
+                      )
+                      return
+                    }
+                    const dbDevice = await getDeviceByIdentity(
+                      resolvedModel,
                       systemInfo.product_info.serial_number,
                     )
                     if (dbDevice?.regionId) {
@@ -279,6 +288,11 @@ export class ScansHelper {
                   serialNumber: systemInfo.product_info.serial_number,
                   version: systemInfo.product_info.software_version,
                 })
+
+                log.debug(
+                  { recognized: task.recognized },
+                  'Device recognized and added to the task',
+                )
               }
             }
             task.processingCount--
