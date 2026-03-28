@@ -49,20 +49,18 @@ const bindDevices = async () => {
         };
       }
       if (
-        await createDevice(
-          {
-            description: null,
-            model: 'Snapmaker:U1',
-            serialNumber: deviceInfo.serialNumber,
-            ethIp: ethNetwork?.ip ?? null,
-            ethMac: ethNetwork?.mac ?? null,
-            wlanIp: wlanNetwork?.ip ?? null,
-            wlanMac: wlanNetwork?.mac ?? null,
-            regionId: region.value?.id ?? null,
-            projectId: null,
-            plateId: null,
-          }
-        )
+        await createDevice({
+          description: null,
+          model: 'Snapmaker:U1',
+          serialNumber: deviceInfo.serialNumber,
+          ethIp: ethNetwork?.ip ?? null,
+          ethMac: ethNetwork?.mac ?? null,
+          wlanIp: wlanNetwork?.ip ?? null,
+          wlanMac: wlanNetwork?.mac ?? null,
+          regionId: region.value?.id ?? null,
+          projectId: null,
+          plateId: null,
+        })
       ) {
         return {
           serialNumber,
@@ -75,7 +73,9 @@ const bindDevices = async () => {
       };
     }),
   );
-  console.log(result);
+  if (result.every((item) => item.success)) {
+    closeDrawer();
+  }
 };
 </script>
 

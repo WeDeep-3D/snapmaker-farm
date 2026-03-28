@@ -44,7 +44,7 @@ export const useDevicesApi = () => {
         type: 'positive',
         message: i18n('notifications.createDeviceSuccess'),
       });
-      return data.data;
+      return true;
     } catch (error) {
       Notify.create({
         type: 'negative',
