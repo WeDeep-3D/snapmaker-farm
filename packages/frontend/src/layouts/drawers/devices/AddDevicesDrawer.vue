@@ -20,6 +20,12 @@ const { createDevice } = useDevicesApi();
 const { scanDetail, totalCount, scanProgress, scanBuffer, isScanning, requestScan, stopPolling } =
   useScansApi();
 
+const bindResults = ref<
+  {
+    serialNumber: string;
+    success: boolean;
+  }[]
+>([]);
 const region = ref<Region>();
 const needBindingDeviceInfos = ref(new Map<string, DeviceInfo>());
 const step = ref(1);
@@ -38,7 +44,7 @@ const continueToScan = async () => {
 
 const bindDevices = async () => {
   console.log({ region: region.value, needBindingDeviceInfos: needBindingDeviceInfos.value });
-  const result = await Promise.all(
+  bindResults.value = await Promise.all(
     Array.from(needBindingDeviceInfos.value).map(async ([serialNumber, deviceInfo]) => {
       const ethNetwork = deviceInfo.network.find((item) => item.type === 'wired' && item.ip);
       const wlanNetwork = deviceInfo.network.find((item) => item.type === 'wireless' && item.ip);
@@ -73,8 +79,8 @@ const bindDevices = async () => {
       };
     }),
   );
-  if (result.every((item) => item.success)) {
-    closeDrawer();
+  if (bindResults.value.every((item) => item.success)) {
+    setTimeout(closeDrawer, 1500);
   }
 };
 </script>
@@ -127,6 +133,7 @@ const bindDevices = async () => {
       >
         <scan-result-panel
           class="col-grow"
+          :bind-results="bindResults"
           :scan-detail="scanDetail"
           :scan-progress="scanProgress"
           :scan-buffer="scanBuffer"
@@ -135,7 +142,7 @@ const bindDevices = async () => {
         <q-stepper-navigation>
           <q-btn
             color="primary"
-            :disable="isScanning"
+            :loading="isScanning"
             :label="i18n('labels.bindDevices')"
             no-caps
             @click="bindDevices"
@@ -143,6 +150,7 @@ const bindDevices = async () => {
           <q-btn
             flat
             color="primary"
+            :loading="isScanning"
             :label="i18n('labels.back')"
             class="q-ml-sm"
             @click="cancelScanAndGoBack"

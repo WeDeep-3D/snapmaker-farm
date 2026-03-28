@@ -11,6 +11,10 @@ const props = defineProps<{
   scanDetail: ScanDetail;
   scanProgress: number;
   scanBuffer: number;
+  bindResults: {
+    serialNumber: string;
+    success: boolean;
+  }[];
 }>();
 
 const modelValue = defineModel<Map<string, DeviceInfo>>({
@@ -129,10 +133,14 @@ const selectWireless = () => {
           v-ripple
         >
           <LocalScope
+            :bindResult="
+              props.bindResults.find(({ serialNumber }) => serialNumber === deviceInfo.serialNumber)
+                ?.success
+            "
             :preferredNetwork="
               deviceInfo.network.toSorted((a, b) => a.type.localeCompare(b.type))[0]
             "
-            #default="{ preferredNetwork }"
+            #default="{ bindResult, preferredNetwork }"
           >
             <q-item-section v-if="preferredNetwork" side>
               <q-checkbox
@@ -177,6 +185,14 @@ const selectWireless = () => {
                 text-color="white"
               />
             </q-item-section>
+            <div
+              class="absolute-full"
+              :class="{
+                'bg-red': bindResult === false,
+                'bg-green': bindResult === true,
+              }"
+              style="z-index: -100; opacity: 0.75"
+            />
           </LocalScope>
         </q-item>
       </q-list>
