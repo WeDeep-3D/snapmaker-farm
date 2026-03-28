@@ -1,3 +1,9 @@
+export enum IdleTimeoutState {
+  printing = 'Printing',
+  ready = 'Ready',
+  idle = 'Idle',
+}
+
 export enum KlippyState {
   disconnected = 'disconnected',
   error = 'error',
@@ -5,6 +11,188 @@ export enum KlippyState {
   shutdown = 'shutdown',
   startup = 'startup',
   unknown = 'unknown',
+}
+
+export enum PrintState {
+  standby = 'standby',
+  printing = 'printing',
+  paused = 'paused',
+  complete = 'complete',
+  error = 'error',
+  cancelled = 'cancelled',
+  unknown = 'unknown',
+}
+
+export interface PrinterObjectTypes {
+  webhooks: {
+    state: KlippyState
+    state_message: string
+  }
+  motion_report: {
+    live_position: number[]
+    live_velocity: number
+    live_extruder_velocity: number
+    steppers: string[]
+    trapq: string[]
+  }
+  gcode_move: {
+    speed_factor: number
+    speed: number
+    extrude_factor: number
+    absolute_coordinates: boolean
+    absolute_extrude: boolean
+    homing_origin: number[]
+    position: number[]
+    gcode_position: number[]
+  }
+  toolhead: {
+    homed_axes: string
+    axis_minimum: number[]
+    axis_maximum: number[]
+    print_time: number
+    stalls: number
+    estimated_print_time: number
+    extruder: string
+    position: number[]
+    max_velocity: number
+    max_accel: number
+    minimum_cruise_ratio: number
+    square_corner_velocity: number
+  }
+  configfile: {
+    config: Record<string, any>
+    settings: Record<string, any>
+    save_config_pending: boolean
+    save_config_pending_items: Record<string, any>
+    warnings: string[]
+  }
+  extruder: {
+    temperature: number
+    target: number
+    power: number
+    can_extrude: boolean
+    pressure_advance: number
+    smooth_time: number
+    motion_queue: string | null
+  }
+  heater_bed: {
+    temperature: number
+    target: number
+    power: number
+  }
+  fan: {
+    speed: number
+    rpm: number | null
+  }
+  idle_timeout: {
+    state: IdleTimeoutState
+    printing_time: number
+  }
+  virtual_sdcard: {
+    file_path: string | null
+    progress: number
+    is_active: boolean
+    file_position: number
+    file_size: number
+  }
+  print_stats: {
+    filename: string
+    total_duration: number
+    print_duration: number
+    filament_used: number
+    state: PrintState
+    message: string
+    info: {
+      total_layer: number | null
+      current_layer: number | null
+    }
+  }
+  display_status: {
+    message: string
+    progress: number
+  }
+  temperature_sensor: {
+    temperature: number
+    measured_min_temp: number
+    measured_max_temp: number
+  }
+  temperature_fan: {
+    speed: number
+    rpm: number | null
+    temperature: number
+    target: number
+  }
+  filament_switch_sensor: {
+    filament_detected: false
+    enabled: boolean
+  }
+  output_pin: {
+    value: number
+  }
+  bed_mesh: {
+    profile_name: string
+    mesh_min: number[]
+    mesh_max: number[]
+    probed_matrix: number[][]
+    mesh_matrix: number[][]
+    profiles: Record<
+      string,
+      {
+        mesh_params: {
+          min_x: number
+          max_x: number
+          min_y: number
+          max_y: number
+          x_count: number
+          y_count: number
+          mesh_x_pos: number
+          mesh_y_pos: number
+          algo: string
+          tension: number
+        }
+        points: number[][]
+      }
+    >
+  }
+  exclude_object: {
+    object: {
+      name: string
+      polygon: [number, number][]
+      center: [number, number]
+    }[]
+    excluded_object: string[]
+    current_object: string | null
+  }
+  gcode_macro: {
+    var_name: string
+  }
+  mcu: {
+    mcu_version: string
+    mcu_build_versions: string
+    mcu_constants: Record<string, any>
+  }
+  stepper_enable: {
+    steppers: Record<string, boolean>
+  }
+}
+
+export type PrinterObjectQuery = {
+  [K in keyof PrinterObjectTypes]?: null | readonly (keyof PrinterObjectTypes[K])[]
+}
+
+export type PrinterObjectQueryStatus<T extends PrinterObjectQuery> = {
+  [K in keyof T & keyof PrinterObjectTypes]: T[K] extends null
+    ? PrinterObjectTypes[K]
+    : T[K] extends readonly (keyof PrinterObjectTypes[K])[]
+      ? Pick<PrinterObjectTypes[K], T[K][number]>
+      : never
+}
+
+export interface GetPrinterObjectsResp<T extends PrinterObjectQuery = PrinterObjectQuery> {
+  result: {
+    eventtime: number
+    status: PrinterObjectQueryStatus<T>
+  }
 }
 
 export interface GetMoonrakerInfoResp {

@@ -4,9 +4,11 @@ import type {
   DeleteFileResp,
   GetMoonrakerInfoResp,
   GetPrinterInfoResp,
+  GetPrinterObjectsResp,
   GetSystemInfoResp,
   ListAvailableFilesResp,
   ListRegisteredRootsResp,
+  PrinterObjectQuery,
 } from './types'
 
 export class HttpApi {
@@ -23,6 +25,11 @@ export class HttpApi {
 
   async getPrinterInfo() {
     return (await this._api.get<GetPrinterInfoResp>('/printer/info')).data
+  }
+
+  async getPrinterObjects<const T extends PrinterObjectQuery>(objects: T) {
+    return (await this._api.post<GetPrinterObjectsResp<T>>('/printer/objects/query', { objects }))
+      .data
   }
 
   async getSystemInfo(): Promise<GetSystemInfoResp> {
