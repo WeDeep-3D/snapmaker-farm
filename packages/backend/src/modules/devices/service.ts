@@ -15,50 +15,7 @@ import {
   getDevicesByRegionId,
   upsertDevice,
 } from './repository'
-import { checkBindingStatus, getAvailableIp, getDbFingerprint } from './utils'
-
-/**
- * Enrich a device record with live device info and print status fetched from the device API.
- * Returns the original device record as-is if no reachable IP is available.
- */
-const enrichDeviceInfo = async (device: Awaited<ReturnType<typeof getAllDevices>>[number]) => {
-  const ip = getAvailableIp(device)
-  if (!ip) {
-    return device
-  }
-  const httpApi = new HttpApi(ip)
-  const printerInfo = await httpApi.getPrinterInfo()
-  const printerObjects = await httpApi.getPrinterObjects({
-    print_stats: null,
-    display_status: ['progress'],
-  })
-  const productInfo = (await httpApi.getSystemInfo()).result.system_info.product_info
-  return {
-    ...device,
-    deviceInfo: {
-      name: productInfo.device_name,
-      nozzleDiameters: productInfo.nozzle_diameter,
-      state: printerInfo.result.state,
-      configFile: printerInfo.result.config_file,
-      softwareVersion: printerInfo.result.software_version,
-    },
-    printInfo: {
-      state: printerObjects.result.status.print_stats.state,
-      filename: printerObjects.result.status.print_stats.filename,
-      duration: {
-        current: printerObjects.result.status.print_stats.print_duration,
-        total: printerObjects.result.status.print_stats.total_duration,
-      },
-      filamentUsed: printerObjects.result.status.print_stats.filament_used,
-      message: printerObjects.result.status.print_stats.message,
-      layerCount: {
-        current: printerObjects.result.status.print_stats.info.current_layer,
-        total: printerObjects.result.status.print_stats.info.total_layer,
-      },
-      progress: printerObjects.result.status.display_status.progress,
-    },
-  }
-}
+import { checkBindingStatus, enrichDeviceInfo, getAvailableIp, getDbFingerprint } from './utils'
 
 export abstract class Devices {
   static async getDevices(regionId?: string) {

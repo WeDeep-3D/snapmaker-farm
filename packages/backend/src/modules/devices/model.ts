@@ -7,6 +7,7 @@ import { buildSuccessRespBody, errorRespBody } from '@/utils/model'
 
 const deviceSelectSchema = createSelectSchema(devices)
 const deviceInsertSchema = createInsertSchema(devices)
+export type DeviceSelectSchema = typeof deviceSelectSchema.static
 
 const deviceCreateSchema = t.Omit(deviceInsertSchema, ['id', 'createdAt', 'updatedAt'])
 const deviceRetrieveSchema = t.Composite([
