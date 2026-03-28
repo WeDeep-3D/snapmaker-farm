@@ -14,7 +14,7 @@ import type { DeviceInfo } from 'src/composables/api/scansApi/types';
 import { bus } from 'boot/bus';
 import { i18nSubPath } from 'src/utils/common';
 
-const i18n = i18nSubPath('layouts.drawers.devices.AddDevicesDrawer');
+const i18n = i18nSubPath('components.devices.AddDevicesPanel');
 
 const { createDevice } = useDevicesApi();
 const { scanDetail, totalCount, scanProgress, scanBuffer, isScanning, requestScan, stopPolling } =

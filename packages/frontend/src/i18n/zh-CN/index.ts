@@ -3,6 +3,18 @@ const productName = 'Snapmaker Farm';
 export default {
   components: {
     devices: {
+      AddDevicesPanel: {
+        labels: {
+          title: '添加设备',
+          setRegionTitle: '设置区域',
+          scanDevicesTitle: '扫描设备',
+          selectDevicesTitle: '选择设备',
+          continue: '继续',
+          back: '返回',
+          startScan: '开始扫描',
+          bindDevices: '绑定设备',
+        },
+      },
       AddRegionDialog: {
         labels: {
           title: '新建区域',
@@ -11,6 +23,28 @@ export default {
           regionDescription: '区域描述（可选）',
           confirm: '确认',
           cancel: '取消',
+        },
+      },
+      DeviceDetailsPanel: {
+        labels: {
+          title: '设备详情',
+        },
+      },
+      DevicesGridView: {
+        labels: {
+          cost: '消耗: {cost}mm',
+          remaining: '剩余: {duration}',
+          filename: '文件名：{filename}',
+          layers: '层数：{current}/{total}',
+        },
+        printStates: {
+          standby: '待机',
+          printing: '打印中',
+          paused: '暂停',
+          complete: '完成',
+          error: '错误',
+          cancelled: '已取消',
+          unknown: '未知',
         },
       },
       IpInput: {
@@ -148,25 +182,6 @@ export default {
   },
   layouts: {
     drawers: {
-      devices: {
-        AddDevicesDrawer: {
-          labels: {
-            title: '添加设备',
-            setRegionTitle: '设置区域',
-            scanDevicesTitle: '扫描设备',
-            selectDevicesTitle: '选择设备',
-            continue: '继续',
-            back: '返回',
-            startScan: '开始扫描',
-            bindDevices: '绑定设备',
-          },
-        },
-        DeviceDetailsDrawer: {
-          labels: {
-            title: '设备详情',
-          },
-        },
-      },
       ProjectsLeftDrawer: {
         labels: {
           title: '筛选',

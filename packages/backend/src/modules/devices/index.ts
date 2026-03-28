@@ -28,6 +28,24 @@ export const devices = new Elysia({
       },
     },
   )
+  .get(
+    '/:id',
+    async ({ params }) => {
+      try {
+        return await Devices.getDevice(params.id)
+      } catch (error) {
+        return buildErrorResponse(500, (error as Error).message)
+      }
+    },
+    {
+      params: 'retrieveDeviceByIdReqParams',
+      response: {
+        200: 'fullSingleDeviceRespBody',
+        404: 'errorRespBody',
+        500: 'errorRespBody',
+      },
+    },
+  )
   .post(
     '/',
     async ({ body, query }) => {

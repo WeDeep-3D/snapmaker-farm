@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { bus } from 'boot/bus';
 import DevicesPanel from 'components/devices/DevicesPanel.vue';
+
+import { bus } from 'boot/bus';
 import { i18nSubPath } from 'src/utils/common';
 
 const i18n = i18nSubPath('pages.main.DevicesPage');
@@ -20,7 +21,7 @@ const displayOptions = [
   },
 ];
 
-const displayOption = ref<'grid' | 'list'>('list');
+const displayOption = ref<'grid' | 'list'>('grid');
 const panelOption = ref('devices');
 
 const showAddDevicesDrawer = () => {

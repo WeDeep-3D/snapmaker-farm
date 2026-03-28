@@ -1,7 +1,7 @@
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
 import { Elysia, t } from 'elysia'
 
-import { KlippyState } from '@/api/snapmaker/types'
+import { KlippyState, PrintState } from '@/api/snapmaker/types'
 import { devices } from '@/database/schema'
 import { buildSuccessRespBody, errorRespBody } from '@/utils/model'
 
@@ -12,12 +12,32 @@ const deviceCreateSchema = t.Omit(deviceInsertSchema, ['id', 'createdAt', 'updat
 const deviceRetrieveSchema = t.Composite([
   deviceSelectSchema,
   t.Object({
-    printerInfo: t.Object({
-      state: t.Enum(KlippyState),
-      logFile: t.String(),
-      configFile: t.String(),
-      softwareVersion: t.String(),
-    }),
+    deviceInfo: t.Optional(
+      t.Object({
+        name: t.String(),
+        nozzleDiameters: t.Array(t.Number()),
+        state: t.Enum(KlippyState),
+        configFile: t.String(),
+        softwareVersion: t.String(),
+      }),
+    ),
+    printInfo: t.Optional(
+      t.Object({
+        state: t.Enum(PrintState),
+        filename: t.String(),
+        duration: t.Object({
+          current: t.Number(),
+          total: t.Number(),
+        }),
+        filamentUsed: t.Number(),
+        message: t.String(),
+        layerCount: t.Object({
+          current: t.Nullable(t.Number()),
+          total: t.Nullable(t.Number()),
+        }),
+        progress: t.Number(),
+      }),
+    ),
   }),
 ])
 const deviceUpdateSchema = t.Omit(deviceCreateSchema, ['model', 'serialNumber'])
@@ -34,6 +54,9 @@ export const devicesModel = new Elysia({ name: 'devices.model' }).model({
           'Whether to force bind the device even if it is already bound to a region. Default is false.',
       }),
     ),
+  }),
+  retrieveDeviceByIdReqParams: t.Object({
+    id: t.String({ format: 'uuid', description: 'Device ID to retrieve' }),
   }),
   retrieveDeviceReqQuery: t.Object({
     regionId: t.Optional(

@@ -3,6 +3,18 @@ const productName = 'Snapmaker Farm';
 export default {
   components: {
     devices: {
+      AddDevicesPanel: {
+        labels: {
+          title: 'Add Devices',
+          setRegionTitle: 'Set Region',
+          scanDevicesTitle: 'Scan Devices',
+          selectDevicesTitle: 'Select Devices',
+          continue: 'Continue',
+          back: 'Back',
+          startScan: 'Start Scan',
+          bindDevices: 'Bind Devices',
+        },
+      },
       AddRegionDialog: {
         labels: {
           title: 'New Region',
@@ -11,6 +23,28 @@ export default {
           regionDescription: 'Region Description (Optional)',
           confirm: 'Confirm',
           cancel: 'Cancel',
+        },
+      },
+      DeviceDetailsPanel: {
+        labels: {
+          title: 'Device Details',
+        },
+      },
+      DevicesGridView: {
+        labels: {
+          cost: 'Cost: {cost}mm',
+          remaining: 'Remaining: {duration}',
+          filename: 'Filename: {filename}',
+          layers: 'Layers: {current}/{total}',
+        },
+        printStates: {
+          standby: 'Standby',
+          printing: 'Printing',
+          paused: 'Paused',
+          complete: 'Complete',
+          error: 'Error',
+          cancelled: 'Cancelled',
+          unknown: 'Unknown',
         },
       },
       IpInput: {
@@ -149,25 +183,6 @@ export default {
   },
   layouts: {
     drawers: {
-      devices: {
-        AddDevicesDrawer: {
-          labels: {
-            title: 'Add Devices',
-            setRegionTitle: 'Set Region',
-            scanDevicesTitle: 'Scan Devices',
-            selectDevicesTitle: 'Select Devices',
-            continue: 'Continue',
-            back: 'Back',
-            startScan: 'Start Scan',
-            bindDevices: 'Bind Devices',
-          },
-        },
-        DeviceDetailsDrawer: {
-          labels: {
-            title: 'Device Details',
-          },
-        },
-      },
       ProjectsLeftDrawer: {
         labels: {
           title: 'Filters',

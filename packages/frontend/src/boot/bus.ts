@@ -13,7 +13,7 @@ export const bus = new EventBus<{
     action: 'close' | 'open' | 'toggle' | 'minimize' | 'maximize' | 'switch',
     position: 'left' | 'right',
   ) => void;
-  devicesDrawer: (content: 'addDevices' | 'deviceDetails') => void;
+  devicesDrawer: (content: 'addDevices' | 'deviceDetails', deviceId?: string) => void;
 }>();
 
 export default defineBoot(({ app }) => {
